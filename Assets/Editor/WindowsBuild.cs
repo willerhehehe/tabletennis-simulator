@@ -25,6 +25,17 @@ public static class WindowsBuild
         PlayerSettings.SetScriptingBackend(NamedBuildTarget.Standalone, ScriptingImplementation.Mono2x);
         PlayerSettings.SetUseDefaultGraphicsAPIs(target, false);
         PlayerSettings.SetGraphicsAPIs(target, new[] { GraphicsDeviceType.Direct3D11 });
+        IncludeRuntimeShaders();
+        var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions {
+            scenes = new[] { "Assets/Scenes/PhysicsLab.unity" }, target = target,
+            locationPathName = Path.Combine(directory, "TableTennisLab.exe"), options = BuildOptions.CompressWithLz4HC
+        });
+        File.WriteAllText(Path.Combine(directory, "build-info.txt"),
+            $"Version {PlayerSettings.bundleVersion}\nUnity {Application.unityVersion}\nWindows x64 / Mono / Direct3D 11\nBuild: {report.summary.result}\nBytes: {report.summary.totalSize}\nErrors: {report.summary.totalErrors}\n");
+        if (report.summary.result != BuildResult.Succeeded) throw new Exception("Windows 构建失败，请查看构建日志。");
+    }
+    public static void IncludeRuntimeShaders()
+    {
         // Scene objects create their materials at runtime, so include these shaders explicitly.
         var graphics = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/GraphicsSettings.asset")[0]);
         var shaders = graphics.FindProperty("m_AlwaysIncludedShaders");
@@ -37,12 +48,6 @@ public static class WindowsBuild
             if (!found) { shaders.InsertArrayElementAtIndex(shaders.arraySize); shaders.GetArrayElementAtIndex(shaders.arraySize - 1).objectReferenceValue = shader; }
         }
         graphics.ApplyModifiedPropertiesWithoutUndo(); AssetDatabase.SaveAssets();
-        var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions {
-            scenes = new[] { "Assets/Scenes/PhysicsLab.unity" }, target = target,
-            locationPathName = Path.Combine(directory, "TableTennisLab.exe"), options = BuildOptions.CompressWithLz4HC
-        });
-        File.WriteAllText(Path.Combine(directory, "build-info.txt"),
-            $"Version {PlayerSettings.bundleVersion}\nUnity {Application.unityVersion}\nWindows x64 / Mono / Direct3D 11\nBuild: {report.summary.result}\nBytes: {report.summary.totalSize}\nErrors: {report.summary.totalErrors}\n");
-        if (report.summary.result != BuildResult.Succeeded) throw new Exception("Windows 构建失败，请查看构建日志。");
     }
+
 }

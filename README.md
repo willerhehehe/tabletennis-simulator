@@ -6,6 +6,14 @@
 
 ## 1. 使用说明
 
+### 在线体验（Web）
+
+**[打开浏览器版：pinggo.willer.tech/tts/](https://pinggo.willer.tech/tts/)**
+
+无需安装。电脑使用鼠标；手机会切换为触屏布局，支持横竖屏、双指缩放和数值输入弹层。报告在浏览器中下载为 ZIP；Safari 若未自动开始下载，可点击页面底部的下载链接。
+
+首次加载需要下载约 19 MB 资源。已通过桌面 Chrome、手机尺寸触屏配置下的输入／接发搜索／导出检查，以及 iPhone 模拟器 Safari 的加载与渲染检查；尚未在实体 iPhone 上验证性能和完整交互。
+
 ### 下载与安装
 
 普通使用者直接下载 Windows 构建包，无需安装 Unity Editor，也无需 Unity 账号。
@@ -18,7 +26,7 @@
 2. 进入 `TableTennisLab` 文件夹，双击 `TableTennisLab.exe`。
 3. 保留同目录的 `TableTennisLab_Data`、`MonoBleedingEdge` 和 DLL；不要只复制 exe，也不要直接在压缩包内运行。
 
-窗口可缩放或最大化，建议使用 1440 × 900 或更大的显示区域。中文字体已随程序附带。导出的实验数据保存在程序旁的 `Artifacts/`；如无法导出，请将完整程序目录移到可写位置。
+窗口可缩放或最大化，建议使用 1440 × 900 或更大的显示区域。中文字体已随程序附带。Windows 版导出的实验数据保存在程序旁的 `Artifacts/`；如无法导出，请将完整程序目录移到可写位置。
 
 Windows 包使用 x64 / Mono / Direct3D 11，已完成 macOS 交叉构建和压缩包校验；**尚未在 Windows 实机启动验证**。
 
@@ -99,14 +107,17 @@ Assets/
 │   ├── Core/                    # 纯 C# 物理、发球与接发算法
 │   ├── Application/             # 后台评估任务与取消、结果交接
 │   ├── Infrastructure/          # 实验文件与报告导出
-│   └── Presentation/            # Unity 界面、输入、相机和绘制
-├── Editor/                      # Editor 验证工具、Windows 构建入口
+│   └── Presentation/            # Unity 界面、触屏、相机和浏览器桥接
+├── Plugins/WebGL/               # 浏览器输入与下载桥接
+├── WebGLTemplates/TableTennis/   # Web 加载页与画布适配
+├── Editor/                      # Editor 验证工具、Windows / Web 构建入口
 ├── Tests/PhysicsChecks.cs       # 共用物理回归检查
 └── Resources/                   # 中文字体及第三方许可
 Checks/                          # .NET 8 独立检查入口与数据回放
 Calibration/rubber/              # 公开数据快照、拟合脚本、系数和报告
 docs/                            # 模块说明、研究资料与截图
-scripts/                         # 检查、归档校验、Windows 构建脚本
+scripts/                         # 检查、归档校验、Windows / Web 构建脚本
+deploy/nginx/                    # /tts/ 静态服务路由配置
 Packages/、ProjectSettings/      # Unity 依赖与项目配置
 strategy-demo/                   # 独立网页策略原型，不属于 Unity 运行时
 ```
@@ -125,7 +136,7 @@ flowchart LR
 | 模块 | 主要对象 | 职责 |
 |---|---|---|
 | [Core](Assets/Scripts/Core) | `BallPhysics`、`ServeStroke`、`ServeContact`、`ServePreset`、`ReceiveStudy`、`InvertedRubberResponse` | 更新球状态、求碰撞与反算动作、匹配发球、评估接法、计算器材响应 |
-| [Application](Assets/Scripts/Application) | `ReceiveStudyRunner` | 复制输入快照、启动后台任务、报告进度、处理取消与异常、交回结果 |
+| [Application](Assets/Scripts/Application) | `ReceiveStudyRunner` | 复制输入快照；桌面后台运行、Web 分批推进；报告进度、处理取消与异常并交回结果 |
 | [Infrastructure](Assets/Scripts/Infrastructure) | `ExperimentFiles` | 写入轨迹、碰撞事件、参数和逐次试验报告 |
 | [Presentation](Assets/Scripts/Presentation) | `PhysicsLab`、`LabScene`、`LabTheme`、`SpinPreview`、各预设面板 | 绑定控件、切换模式、控制视角与回放，管理场景和显示资源 |
 
@@ -150,6 +161,16 @@ UNITY_EDITOR="/Applications/Unity/Hub/Editor/6000.3.23f1/Unity.app/Contents/MacO
 ```
 
 脚本复制到临时项目构建，保留正在运行的 Editor 实验；输出位于 `Builds/Windows11/<版本号>/TableTennisLab/`。脚本生成程序目录，Release 的 ZIP 需将该目录及使用说明一起压缩。`Library/`、`Temp/`、`Artifacts/`、`Builds/`、本地工具与缓存均不进入 Git。
+
+Web 构建需安装 **Web Build Support**：
+
+```sh
+python3 scripts/build-web.py --version 0.2.0
+```
+
+输出位于 `Builds/Web/0.2.0/site/`，需要通过 HTTP(S) 服务器访问，不能直接双击 HTML。加载资源使用相对路径，可部署在 `/tts/` 下；nginx 配置和发布步骤见[部署说明](deploy/README.md)。`server-config.env` 仅供本地部署使用，已加入 Git 忽略规则。
+
+Web 不依赖 `Task.Run` 执行接发搜索：每次试验之间可以让出控制权，由界面逐帧推进；桌面与 Web 使用同一随机种子、候选和评分逻辑，一致性、取消及异常处理均有检查。安装 Playwright 后，可运行 `node scripts/check-web-bridge.cjs` 验证输入和下载桥接；`CHROME_BIN` 可指定浏览器路径。
 
 ## 4. 物理模型与计算方法
 

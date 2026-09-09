@@ -320,8 +320,8 @@ namespace TableTennis
         bool BeginStrokePointDrag(int index, Vector2 mouse, bool heightOnly)
         {
             if (mode != 3 || index < 0 || index > 2 || !CameraPointerAllowed(mouse)) return false;
-            strokeDragOrigin = U(StrokePoint(index)); strokeDragMouse = mouse; strokeDragHeight = heightOnly;
-            if (heightOnly)
+            strokeDragOrigin = U(StrokePoint(index)); strokeDragMouse = mouse; strokeDragHeight = heightOnly || (CompactLayout && mobileHeightDrag);
+            if (strokeDragHeight)
             {
                 Vector3 a = view.WorldToViewportPoint(strokeDragOrigin), b = view.WorldToViewportPoint(strokeDragOrigin + Vector3.up);
                 strokeHeightAxis = new Vector2((b.x - a.x) * ViewArea.width, -(b.y - a.y) * ViewArea.height);
@@ -584,6 +584,7 @@ namespace TableTennis
             try
             {
                 string root = exportFiles.WriteStroke(strokeTimeline, JsonUtility.ToJson(new StrokeExport(this), true));
+                WebPlatform.DeliverExport(root);
                 notice = "已导出 " + Path.GetFileName(root) + "（参数与全程数据）";
             }
             catch (Exception e) { notice = "导出失败：" + e.Message; }

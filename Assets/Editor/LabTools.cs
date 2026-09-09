@@ -7,6 +7,27 @@ using UnityEngine.SceneManagement;
 
 public static class LabTools
 {
+    public static void CheckResponsiveLayout()
+    {
+        var obj = new GameObject("布局检查（临时）"); var lab = obj.AddComponent<PhysicsLab>(); lab.enabled = false;
+        var f = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        try
+        {
+            foreach (var size in new[] { new Vector2(390, 844), new Vector2(375, 667), new Vector2(844, 390), new Vector2(932, 430) })
+            {
+                typeof(PhysicsLab).GetField("guiWidth", f).SetValue(lab, size.x); typeof(PhysicsLab).GetField("guiHeight", f).SetValue(lab, size.y);
+                var area = (Rect)typeof(PhysicsLab).GetProperty("ViewArea", f).GetValue(lab);
+                var panel = (Rect)typeof(PhysicsLab).GetProperty("MobilePanelRect", f).GetValue(lab);
+                var spin = (Rect)typeof(PhysicsLab).GetProperty("MobileSpinRect", f).GetValue(lab);
+                if (area.width < 250 || area.height < 160 || panel.width < 280 || panel.height < 250 || area.Overlaps(panel) ||
+                    panel.x < 0 || panel.y < 0 || panel.xMax > size.x || panel.yMax > size.y || !area.Contains(spin.center))
+                    throw new System.Exception("手机布局越界或球台与参数重叠：" + size);
+            }
+            File.WriteAllText("Artifacts/responsive-layout-checks.txt", "PASS: 390x844, 375x667, 844x390 and 932x430 keep viewport, rotation illustration and scrollable controls within bounds.\n");
+        }
+        finally { Object.DestroyImmediate(obj); }
+    }
+
     [MenuItem("乒乓球/验证统一球拍设置")]
     public static void CheckEquipmentSettings()
     {

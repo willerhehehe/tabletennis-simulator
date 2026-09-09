@@ -202,8 +202,8 @@ namespace TableTennis
             ReceiveAction action, double restitution, double friction, double tangent, CancellationToken cancellation = default)
         {
             Validate(incoming, physics, settings, action, restitution, friction, tangent);
-            return EvaluateBank(incoming, physics, settings, action, restitution, friction, tangent,
-                NoiseBank(settings.Trials, unchecked(settings.Seed + 1000003), settings), true, cancellation);
+            return EvaluateSteps(incoming, physics, settings, action, restitution, friction, tangent,
+                NoiseBank(settings.Trials, unchecked(settings.Seed + 1000003), settings), true, cancellation).Last();
         }
 
         public static ReceiveReport TestCurrent(BallState incoming, PhysicsSettings physics, ReceiveStudySettings settings,
@@ -226,7 +226,7 @@ namespace TableTennis
                 throw new ArgumentException("接球动作包含无效数值。");
         }
 
-        static ReceiveScore EvaluateBank(BallState incoming, PhysicsSettings p, ReceiveStudySettings settings,
+        static IEnumerable<ReceiveScore> EvaluateSteps(BallState incoming, PhysicsSettings p, ReceiveStudySettings settings,
             ReceiveAction action, double restitution, double friction, double tangent, Noise[] bank, bool keepTrials, CancellationToken cancellation)
         {
             if (!p.NetEnabled) throw new ArgumentException("稳定性评估必须开启球网检测。");
@@ -270,13 +270,14 @@ namespace TableTennis
                     score.Failures.TryGetValue(trial.Reason, out int count); score.Failures[trial.Reason] = count + 1;
                 }
                 if (keepTrials) score.Trials.Add(trial);
+                yield return null; // One trial per cooperative step; desktop drains the same iterator.
             }
             if (score.Successes > 0)
             {
                 score.AverageSpeed /= score.Successes; margins.Sort();
                 if (margins.Count > 0) score.Margin10 = margins[(int)((margins.Count - 1) * 0.1)];
             }
-            return score;
+            yield return score;
         }
 
         static int Compare(ReceiveScore a, ReceiveScore b)
@@ -291,8 +292,23 @@ namespace TableTennis
 
         public static ReceiveReport Search(BallState incoming, PhysicsSettings p, ReceiveStudySettings settings, ReceiveAction baseline,
             double restitution, double friction, double tangent, CancellationToken cancellation = default, Action<int, int> progress = null)
+            => RunSteps(incoming, p, settings, baseline, restitution, friction, tangent, false, cancellation, progress).Last();
+
+        public static IEnumerable<ReceiveReport> RunSteps(BallState incoming, PhysicsSettings p, ReceiveStudySettings settings, ReceiveAction baseline,
+            double restitution, double friction, double tangent, bool currentOnly, CancellationToken cancellation = default, Action<int, int> progress = null)
         {
             Validate(incoming, p, settings, baseline, restitution, friction, tangent);
+            if (currentOnly)
+            {
+                foreach (var score in EvaluateSteps(incoming, p, settings, baseline, restitution, friction, tangent,
+                    NoiseBank(settings.Trials, unchecked(settings.Seed + 1000003), settings), true, cancellation))
+                {
+                    if (score == null) yield return null;
+                    else yield return new ReceiveReport { Settings = settings.Copy(), Incoming = incoming, Baseline = score,
+                        Ranked = new List<ReceiveScore> { score }, EvaluatedCandidates = 1 };
+                }
+                yield break;
+            }
             // Common random numbers compare actions fairly; the separate validation bank is never used by the candidate search.
             Noise[] train = NoiseBank(32, settings.Seed, settings);
             var actions = new List<ReceiveAction> { baseline };
@@ -323,7 +339,8 @@ namespace TableTennis
             var coarse = new List<ReceiveScore>();
             for (int i = 0; i < actions.Count; i++)
             {
-                coarse.Add(EvaluateBank(incoming, p, settings, actions[i], restitution, friction, tangent, train, false, cancellation));
+                foreach (var score in EvaluateSteps(incoming, p, settings, actions[i], restitution, friction, tangent, train, false, cancellation))
+                    if (score == null) yield return null; else coarse.Add(score);
                 progress?.Invoke(i + 1, actions.Count + 85);
             }
             coarse.Sort(compare);
@@ -336,7 +353,8 @@ namespace TableTennis
                     Clamp(leader.Yaw + Symmetric(random, 7.5), -35, 35), Clamp(leader.Forward + Symmetric(random, 0.75), settings.MinForward, settings.MaxForward),
                     Clamp(leader.Up + Symmetric(random, 0.75), settings.MinUp, settings.MaxUp), Clamp(leader.Side + Symmetric(random, 0.75), -RacketMotionLimits.Component, RacketMotionLimits.Component));
                 if (!settings.Allows(action, incoming) || action.Velocity.Length > settings.MaxRacketSpeed) continue;
-                coarse.Add(EvaluateBank(incoming, p, settings, action, restitution, friction, tangent, train, false, cancellation));
+                foreach (var score in EvaluateSteps(incoming, p, settings, action, restitution, friction, tangent, train, false, cancellation))
+                    if (score == null) yield return null; else coarse.Add(score);
                 progress?.Invoke(coarse.Count, actions.Count + 85);
             }
             coarse.Sort(compare);
@@ -347,11 +365,12 @@ namespace TableTennis
             Noise[] validation = NoiseBank(settings.Trials, unchecked(settings.Seed + 1000003), settings);
             foreach (var action in finalists)
             {
-                scores.Add(EvaluateBank(incoming, p, settings, action, restitution, friction, tangent, validation, true, cancellation));
+                foreach (var score in EvaluateSteps(incoming, p, settings, action, restitution, friction, tangent, validation, true, cancellation))
+                    if (score == null) yield return null; else scores.Add(score);
                 progress?.Invoke(coarse.Count + scores.Count, coarse.Count + finalists.Count);
             }
             scores.Sort(compare);
-            return new ReceiveReport { Settings = settings.Copy(), Incoming = incoming, Baseline = scores.First(s => s.Action.Equals(baseline)),
+            yield return new ReceiveReport { Settings = settings.Copy(), Incoming = incoming, Baseline = scores.First(s => s.Action.Equals(baseline)),
                 Ranked = scores, EvaluatedCandidates = coarse.Count };
         }
     }

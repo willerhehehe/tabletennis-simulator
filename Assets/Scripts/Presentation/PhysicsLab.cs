@@ -50,7 +50,7 @@ namespace TableTennis
         {
             Application.targetFrameRate = 60;
             font = Resources.Load<Font>("NotoSansCJKsc-Regular");
-            exportFiles = new ExperimentFiles(Path.Combine(Application.dataPath, "../Artifacts"));
+            exportFiles = new ExperimentFiles(WebPlatform.ExportDirectory);
             BuildWorld(); OpenForwardServe(); Recalculate();
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-lab-capture") >= 0) StartCoroutine(CaptureReview());
         }
@@ -223,7 +223,7 @@ namespace TableTennis
 
         void Update()
         {
-            UpdateReceiveTask();
+            UpdateTouchCamera(); UpdateReceiveTask();
             if (UpdateServeVisuals()) return;
             if (flight == null) return;
             float end = (float)flight.Samples[flight.Samples.Count - 1].Time;
@@ -285,6 +285,7 @@ namespace TableTennis
                 guiScale = InterfaceScale();
                 GUI.matrix = previousMatrix * Matrix4x4.Scale(new Vector3(guiScale, guiScale, 1));
                 Styles(); GUI.skin = labSkin; LayoutInterface(); HandleInterfaceKeys();
+                if (CompactLayout) { DrawMobileInterface(); return; }
                 DrawRect(new Rect(CanvasRight, 0, ReceivePanelWidth, UIHeight), new Color(0.075f, 0.105f, 0.13f));
                 DrawInterface(); DrawPersistentSpinPanel(); DrawHelpTooltip();
             }
@@ -294,6 +295,11 @@ namespace TableTennis
         bool Slider(string label, ref float number, float min, float max, string unit = "")
         {
             bool changed = false;
+            if (webNumbers.TryGetValue(label, out float edited))
+            {
+                webNumbers.Remove(label);
+                if (edited >= min && edited <= max && GUI.enabled) { number = edited; changed = parametersChanged = true; }
+            }
             bool editable = GUI.enabled;
             string control = "parameter:" + label;
             bool focused = GUI.GetNameOfFocusedControl() == control;
@@ -302,7 +308,11 @@ namespace TableTennis
             GUILayout.BeginHorizontal(); GUI.enabled = true;
             GUILayout.Label(new GUIContent(label, $"范围 {min} 至 {max} {unit}"));
             string typed = text;
-            if (editable) { GUI.SetNextControlName(control); typed = GUILayout.TextField(text, GUILayout.Width(80)); }
+            if (editable && Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                if (GUILayout.Button(text, GUILayout.Width(80))) WebPlatform.EditNumber(gameObject.name, label, number, min, max);
+            }
+            else if (editable) { GUI.SetNextControlName(control); typed = GUILayout.TextField(text, GUILayout.Width(80)); }
             else GUILayout.Label(number.ToString("0.###", CultureInfo.InvariantCulture), value, GUILayout.Width(80));
             GUILayout.Label(unit, value, GUILayout.Width(32)); GUILayout.EndHorizontal();
             GUI.enabled = editable;
@@ -371,6 +381,7 @@ namespace TableTennis
             try
             {
                 string stem = exportFiles.WriteFlight(flight, mode == 0 ? null : approach, incoming, launch, JsonUtility.ToJson(new ExportSettings(this), true));
+                WebPlatform.DeliverExport(stem);
                 notice = "已导出：" + stem + ".csv（含事件和参数文件）";
                 Debug.Log(notice);
             }

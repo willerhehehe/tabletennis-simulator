@@ -135,7 +135,7 @@ namespace TableTennis
             finally { DestroyTexture(texture); }
         }
 
-        public void Draw(Rect area, BallState? state, GUIStyle text, bool compact = false)
+        public void Draw(Rect area, BallState? state, GUIStyle text, bool compact = false, bool iconOnly = false)
         {
             LocalSpin = state.HasValue ? state.Value.Spin : new V3();
             if (Event.current.type != EventType.Repaint) return;
@@ -146,7 +146,8 @@ namespace TableTennis
             if (dirty || now - lastImage >= 1.0 / 30 || Skin != lastSkin || ShowArrows != lastArrows || state.HasValue != lastValid)
             { RenderFrame(orientation, LocalSpin, state.HasValue); lastImage = now; dirty = false; lastSkin = Skin; lastArrows = ShowArrows; lastValid = state.HasValue; }
             Color previous = GUI.color; GUI.color = state.HasValue ? Color.white : new Color(0.4f, 0.45f, 0.48f);
-            GUI.DrawTexture(new Rect(area.x + 6, area.y + 7, compact ? 110 : 126, compact ? 110 : 126), sphere); GUI.color = previous;
+            GUI.DrawTexture(iconOnly ? area : new Rect(area.x + 6, area.y + 7, compact ? 110 : 126, compact ? 110 : 126), sphere); GUI.color = previous;
+            if (iconOnly) return;
             float labelX = compact ? 130 : 145;
             if (!state.HasValue) GUI.Label(new Rect(area.x + labelX, area.y + 23, area.width - labelX, 85), "暂无有效\n球状态", text);
             else

@@ -23,7 +23,7 @@ namespace TableTennis
         BallState serveInitial;
         ReceiveReport receiveReport;
         ReceiveScore selectedReceive;
-        readonly ReceiveStudyRunner receiveRunner = new ReceiveStudyRunner();
+        readonly ReceiveStudyRunner receiveRunner = new ReceiveStudyRunner(Application.platform == RuntimePlatform.WebGLPlayer);
         MeshFilter landingCloud;
         const float ReceiveFooterHeight = 160;
         static readonly string[] ReceiveSpinDirections = { "不限制", "顺旋转接", "逆旋转接" };
@@ -57,6 +57,7 @@ namespace TableTennis
 
         void UpdateReceiveTask()
         {
+            receiveRunner.Pump();
             if (!receiveRunner.TryComplete(out var report, out var failure, out bool cancelled)) return;
             if (cancelled)
             { receiveTab = receiveReport == null ? 0 : 1; notice = receiveReport == null ? "已取消，可继续调整接法。" : "已取消，上一轮结果已保留。"; return; }
@@ -396,6 +397,7 @@ namespace TableTennis
             try
             {
                 string stem = exportFiles.WriteReceive(receiveReport, JsonUtility.ToJson(new ExportSettings(this), true));
+                WebPlatform.DeliverExport(stem);
                 notice = "稳定性报告已导出：" + stem + ".csv";
             }
             catch (Exception e) { notice = "报告导出失败：" + e.Message; }

@@ -12,7 +12,7 @@ namespace TableTennis
         // Unity already exposes these in the current GUI coordinate space, including GUI.matrix scaling.
         Vector2 InterfaceMousePosition => Event.current.mousePosition;
         Vector2 InterfaceMouseDelta => Event.current.delta;
-        Rect ViewArea => new Rect(panelWidth, ViewTop, CanvasRight - panelWidth, Mathf.Max(80, UIHeight - ViewTop - FooterHeight));
+        Rect ViewArea => CompactLayout ? MobileViewArea : new Rect(panelWidth, ViewTop, CanvasRight - panelWidth, Mathf.Max(80, UIHeight - ViewTop - FooterHeight));
 
 #if UNITY_EDITOR
         UnityEditor.EditorWindow editorGameView;
@@ -38,7 +38,7 @@ namespace TableTennis
             return Mathf.Max(1, (float)ViewDensity.GetValue(editorGameView));
 #else
             // ponytail: retain the existing player layout; configure standalone display scaling when a player build is added.
-            return 1;
+            return WebPlatform.DeviceScale;
 #endif
         }
 
@@ -47,8 +47,8 @@ namespace TableTennis
             guiWidth = Screen.width / guiScale; guiHeight = Screen.height / guiScale;
             panelWidth = mode == 3 ? 332 : Mathf.Clamp(guiWidth * (mode == 2 ? 0.21f : 0.25f), 284, 340);
             Rect area = ViewArea;
-            view.rect = new Rect(area.x / guiWidth, FooterHeight / guiHeight, area.width / guiWidth, area.height / guiHeight);
-            if (cameraMode != 0 && Mathf.Abs(view.aspect - fittedAspect) > 0.01f) FitCamera();
+            view.rect = new Rect(area.x / guiWidth, (guiHeight - area.yMax) / guiHeight, area.width / guiWidth, area.height / guiHeight);
+            if ((cameraMode != 0 || mode == 3) && Mathf.Abs(view.aspect - fittedAspect) > 0.01f) FitCamera();
         }
 
         bool Fold(string label, ref bool expanded)

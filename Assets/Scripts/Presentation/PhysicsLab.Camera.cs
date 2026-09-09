@@ -13,6 +13,7 @@ namespace TableTennis
 
         bool CameraPointerAllowed(Vector2 point)
         {
+            if (CompactLayout) return ViewArea.Contains(point) && !MobileSpinRect.Contains(point);
             if (!ViewArea.Contains(point) || CameraBar.Contains(point)) return false;
             float top = cameraMode == 4 ? 58 : cameraMode == 3 ? 94 : 60;
             if (point.y < ViewArea.y + top) return false;
@@ -75,6 +76,8 @@ namespace TableTennis
 
         void HandleCameraInput()
         {
+            if (CompactLayout && Input.touchCount > 1)
+            { GUIUtility.hotControl = 0; cameraDragButton = -1; strokeDragging = -1; return; }
             Event e = Event.current;
             Vector2 mouse = InterfaceMousePosition;
             if (cameraDragButton < 0 && cameraDragControl != 0)
@@ -89,7 +92,7 @@ namespace TableTennis
             {
                 if (e.button == 0 && e.clickCount == 2) { ResetCameraView(); e.Use(); return; }
                 cameraDragButton = e.button; cameraDragControl = control;
-                cameraDraggingPan = e.button != 0 || e.shift || !CanOrbitCamera;
+                cameraDraggingPan = e.button != 0 || e.shift || !CanOrbitCamera || (CompactLayout && mobilePan);
                 GUIUtility.hotControl = control; GUI.FocusControl(null); e.Use(); return;
             }
             if (cameraDragButton < 0) return;

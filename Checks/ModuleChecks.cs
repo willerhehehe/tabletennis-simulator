@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using TableTennis;
 
@@ -16,17 +17,27 @@ static class ModuleChecks
         var settings = new ReceiveStudySettings { Trials = 16, Candidates = 16 };
         var action = new ReceiveAction(10, 0, 0.5, 4, 0);
         var expected = ReceiveStudy.TestCurrent(incoming, physics, settings, action, .8, .8, .15);
-        using var runner = new ReceiveStudyRunner();
+        var expectedSearch = ReceiveStudy.Search(incoming, physics, settings, action, .8, .8, .15);
+        foreach (bool cooperative in new[] { false, true })
+        {
+        using var runner = new ReceiveStudyRunner(cooperative);
         (ReceiveReport report, Exception error, bool cancelled) Finish()
         {
             var deadline = DateTime.UtcNow.AddSeconds(30);
             do {
+                runner.Pump();
                 if (runner.TryComplete(out var report, out var error, out bool cancelled)) return (report, error, cancelled);
                 Thread.Sleep(1);
             } while (DateTime.UtcNow < deadline);
             throw new Exception("后台评估超时");
         }
         runner.Start(incoming, physics, settings, action, .8, .8, .15, true);
+        if (cooperative)
+        {
+            Require(!runner.TryComplete(out _, out _, out _), "分批模式在启动时同步算完，浏览器会冻结");
+            runner.Pump(0);
+            Require(!runner.TryComplete(out _, out _, out _), "单次分批执行没有让出控制权");
+        }
         physics.Step = double.NaN; settings.Trials = 1024; // In-flight work owns a snapshot.
         var first = Finish();
         Require(first.error == null && !first.cancelled && first.report.Baseline.Attempts == 16 &&
@@ -37,10 +48,16 @@ static class ModuleChecks
         Require(cancelledResult.cancelled && cancelledResult.report == null && !runner.IsRunning, "取消任务发布了结果");
         runner.Start(incoming, physics, settings, action, double.NaN, .8, .15, true);
         var failed = Finish(); Require(failed.error != null && failed.report == null, "后台异常未返回调用方");
+        runner.Start(incoming, physics, settings, action, .8, .8, .15, false);
+        var searched = Finish();
+        Require(searched.error == null && searched.report.Ranked.Count == expectedSearch.Ranked.Count &&
+            searched.report.Ranked.Zip(expectedSearch.Ranked, (a, b) => a.Action.Equals(b.Action) && a.Successes == b.Successes && a.QualifiedSuccesses == b.QualifiedSuccesses).All(x => x),
+            "后台与浏览器分批搜索结果不同");
         runner.Dispose(); bool rejected = false;
         try { runner.Start(incoming, physics, settings, action, .8, .8, .15, true); } catch (ObjectDisposedException) { rejected = true; }
         Require(rejected, "已释放任务仍可启动");
-        Console.WriteLine("PASS: task snapshots, cancellation, errors and disposal preserve the application boundary.");
+        }
+        Console.WriteLine("PASS: threaded and cooperative search have identical results; yielding, snapshots, cancellation, errors and disposal are preserved.");
 
         string folder = Path.Combine(Path.GetTempPath(), "tabletennis-module-" + Guid.NewGuid());
         var culture = CultureInfo.CurrentCulture;
