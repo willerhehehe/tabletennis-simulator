@@ -1,0 +1,6 @@
+{
+  "name": "TableTennis.Core",
+  "rootNamespace": "TableTennis",
+  "references": [],
+  "noEngineReferences": true
+}

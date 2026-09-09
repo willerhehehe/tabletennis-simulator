@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../Assets/Scripts/Core/*.cs" />
+    <Compile Include="../Assets/Scripts/Application/*.cs" />
+    <Compile Include="../Assets/Scripts/Infrastructure/*.cs" />
+    <Compile Include="../Assets/Tests/PhysicsChecks.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="ModuleChecks.cs" />
+    <Compile Include="RubberCalibrationChecks.cs" />
+    <Compile Include="RubberResponseChecks.cs" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,10 @@
+{
+  "name": "TableTennis.Presentation",
+  "rootNamespace": "TableTennis",
+  "references": [
+    "TableTennis.Core",
+    "TableTennis.Application",
+    "TableTennis.Infrastructure"
+  ],
+  "noEngineReferences": false
+}

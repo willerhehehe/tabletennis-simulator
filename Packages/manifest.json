@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "com.unity.ai.assistant": "2.19.0-pre.2",
+    "com.unity.ai.inference": "2.6.1",
+    "com.unity.pipeline": "0.6.0-exp.1",
+    "com.unity.modules.audio": "1.0.0",
+    "com.unity.modules.imgui": "1.0.0",
+    "com.unity.modules.jsonserialize": "1.0.0",
+    "com.unity.modules.physics": "1.0.0",
+    "com.unity.modules.screencapture": "1.0.0"
+  }
+}

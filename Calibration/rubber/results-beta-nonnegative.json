@@ -1,0 +1,376 @@
+{
+  "source_commit": "159c6f040dd7832570b537b3b5fd00a97fc28c15",
+  "model": "constant e/mu/beta; bounds e[0,1],mu[0,1.5],beta[0,1]",
+  "objective": "mean squared xz velocity error + squared (R * wy error); training only",
+  "baseline": [
+    0.8,
+    0.8,
+    0.15
+  ],
+  "metrics": "source benchmark: mean xz vector error and mean absolute wy spin error; spin reported in rps",
+  "profiles": [
+    {
+      "id": 1,
+      "train_count": 794,
+      "test_count": 199,
+      "e": 0.7502580868213395,
+      "mu": 0.5838758680555556,
+      "beta": 0.6778549382716049,
+      "train": {
+        "velocity_mae_m_s": 0.3292693460189931,
+        "spin_mae_rps": 1.9837727306881208,
+        "weighted_mse": 0.2634470733698503
+      },
+      "baseline_test": {
+        "velocity_mae_m_s": 1.048852048412986,
+        "spin_mae_rps": 10.95836491963838,
+        "weighted_mse": 4.052977063150421
+      },
+      "fitted_test": {
+        "velocity_mae_m_s": 0.3003417942750856,
+        "spin_mae_rps": 1.928221587923859,
+        "weighted_mse": 0.20798037600036376
+      },
+      "normal_speed_range_m_s": [
+        3.5301915774083827,
+        11.672525392520132
+      ],
+      "surface_slip_range_m_s": [
+        0.12337703317988848,
+        14.577605991198867
+      ],
+      "sliding_fraction_train": 0.09949622166246852,
+      "velocity_improvement_pct": 71.36471299936615,
+      "spin_improvement_pct": 82.40411227346233
+    },
+    {
+      "id": 2,
+      "train_count": 622,
+      "test_count": 156,
+      "e": 0.7239122041282766,
+      "mu": 0.6301721643518519,
+      "beta": 0.6451340663580246,
+      "train": {
+        "velocity_mae_m_s": 0.28366950298293053,
+        "spin_mae_rps": 1.3479892501715418,
+        "weighted_mse": 0.1906743555162675
+      },
+      "baseline_test": {
+        "velocity_mae_m_s": 1.1538781149510366,
+        "spin_mae_rps": 11.801196518348219,
+        "weighted_mse": 4.680503188210371
+      },
+      "fitted_test": {
+        "velocity_mae_m_s": 0.26720965379594436,
+        "spin_mae_rps": 1.3461639517873647,
+        "weighted_mse": 0.15445935838247615
+      },
+      "normal_speed_range_m_s": [
+        3.523081952651235,
+        11.625952753818032
+      ],
+      "surface_slip_range_m_s": [
+        0.08455853230415288,
+        14.889216826817687
+      ],
+      "sliding_fraction_train": 0.06270096463022508,
+      "velocity_improvement_pct": 76.84247145919021,
+      "spin_improvement_pct": 88.59298758651819
+    },
+    {
+      "id": 3,
+      "train_count": 616,
+      "test_count": 154,
+      "e": 0.705492897265997,
+      "mu": 0.603298611111111,
+      "beta": 0.6957947530864198,
+      "train": {
+        "velocity_mae_m_s": 0.33701151383018646,
+        "spin_mae_rps": 2.0732465709392143,
+        "weighted_mse": 0.2644079806929556
+      },
+      "baseline_test": {
+        "velocity_mae_m_s": 1.2569541596872325,
+        "spin_mae_rps": 11.957852069066192,
+        "weighted_mse": 4.8441621335600376
+      },
+      "fitted_test": {
+        "velocity_mae_m_s": 0.3449147219183361,
+        "spin_mae_rps": 2.1816814300583673,
+        "weighted_mse": 0.29479594265938963
+      },
+      "normal_speed_range_m_s": [
+        3.380113288615203,
+        10.869822213554993
+      ],
+      "surface_slip_range_m_s": [
+        0.13589038365350015,
+        14.891147770360245
+      ],
+      "sliding_fraction_train": 0.11688311688311688,
+      "velocity_improvement_pct": 72.55948283713376,
+      "spin_improvement_pct": 81.75523984192641
+    },
+    {
+      "id": 4,
+      "train_count": 660,
+      "test_count": 165,
+      "e": 0.6783144869050409,
+      "mu": 0.62109375,
+      "beta": 0.6670765817901234,
+      "train": {
+        "velocity_mae_m_s": 0.2698778528879452,
+        "spin_mae_rps": 1.2796642860018337,
+        "weighted_mse": 0.20918180845579057
+      },
+      "baseline_test": {
+        "velocity_mae_m_s": 1.339210746704383,
+        "spin_mae_rps": 10.928320255451036,
+        "weighted_mse": 4.800832976416423
+      },
+      "fitted_test": {
+        "velocity_mae_m_s": 0.26396595783447874,
+        "spin_mae_rps": 1.2319397564288603,
+        "weighted_mse": 0.14723425622215355
+      },
+      "normal_speed_range_m_s": [
+        3.5025483740941734,
+        11.3151622338479
+      ],
+      "surface_slip_range_m_s": [
+        0.023692581227410588,
+        14.820857108728427
+      ],
+      "sliding_fraction_train": 0.08636363636363636,
+      "velocity_improvement_pct": 80.28943850069427,
+      "spin_improvement_pct": 88.72708954686453
+    },
+    {
+      "id": 5,
+      "train_count": 603,
+      "test_count": 151,
+      "e": 0.6919910656802426,
+      "mu": 0.5,
+      "beta": 0.0,
+      "train": {
+        "velocity_mae_m_s": 0.3731595476465902,
+        "spin_mae_rps": 3.7070794642707976,
+        "weighted_mse": 0.4664206276599625
+      },
+      "baseline_test": {
+        "velocity_mae_m_s": 0.9170512236791565,
+        "spin_mae_rps": 6.990963608545023,
+        "weighted_mse": 1.8497526167406797
+      },
+      "fitted_test": {
+        "velocity_mae_m_s": 0.3740027447552189,
+        "spin_mae_rps": 3.924184718707658,
+        "weighted_mse": 0.4999636126322115
+      },
+      "normal_speed_range_m_s": [
+        3.5889704441617982,
+        10.915777681688251
+      ],
+      "surface_slip_range_m_s": [
+        0.0585389598654113,
+        14.67044664111911
+      ],
+      "sliding_fraction_train": 0.0,
+      "velocity_improvement_pct": 59.216809803192724,
+      "spin_improvement_pct": 43.867756457619876
+    },
+    {
+      "id": 6,
+      "train_count": 592,
+      "test_count": 148,
+      "e": 0.6861727005089578,
+      "mu": 0.31344039351851855,
+      "beta": 0.0,
+      "train": {
+        "velocity_mae_m_s": 0.5962127733514739,
+        "spin_mae_rps": 6.721867395001735,
+        "weighted_mse": 1.290694728808681
+      },
+      "baseline_test": {
+        "velocity_mae_m_s": 1.1497827710851551,
+        "spin_mae_rps": 10.587946011913905,
+        "weighted_mse": 3.541447250005417
+      },
+      "fitted_test": {
+        "velocity_mae_m_s": 0.5527867545581057,
+        "spin_mae_rps": 6.231703723589724,
+        "weighted_mse": 1.163288872842475
+      },
+      "normal_speed_range_m_s": [
+        3.5150687848641446,
+        11.433422652836153
+      ],
+      "surface_slip_range_m_s": [
+        0.056730592944073475,
+        14.741399087979948
+      ],
+      "sliding_fraction_train": 0.16722972972972974,
+      "velocity_improvement_pct": 51.92250497575379,
+      "spin_improvement_pct": 41.14341236177814
+    },
+    {
+      "id": 7,
+      "train_count": 674,
+      "test_count": 168,
+      "e": 0.667188140320775,
+      "mu": 0.5260778356481481,
+      "beta": 0.23492959104938274,
+      "train": {
+        "velocity_mae_m_s": 0.24575209633485712,
+        "spin_mae_rps": 1.5407563711198904,
+        "weighted_mse": 0.2021788158124465
+      },
+      "baseline_test": {
+        "velocity_mae_m_s": 0.9327389404497036,
+        "spin_mae_rps": 2.1950682464994054,
+        "weighted_mse": 1.1712315371806616
+      },
+      "fitted_test": {
+        "velocity_mae_m_s": 0.23229906760815688,
+        "spin_mae_rps": 1.3746181028443214,
+        "weighted_mse": 0.15274894158481658
+      },
+      "normal_speed_range_m_s": [
+        3.334088473769233,
+        11.030102070316609
+      ],
+      "surface_slip_range_m_s": [
+        0.10850060633378475,
+        14.92792472202807
+      ],
+      "sliding_fraction_train": 0.016320474777448073,
+      "velocity_improvement_pct": 75.09495341792443,
+      "spin_improvement_pct": 37.37697654564956
+    },
+    {
+      "id": 8,
+      "train_count": 685,
+      "test_count": 171,
+      "e": 0.743878712993641,
+      "mu": 0.5935691550925926,
+      "beta": 0.7040653935185184,
+      "train": {
+        "velocity_mae_m_s": 0.2624009767940059,
+        "spin_mae_rps": 1.8131511278338768,
+        "weighted_mse": 0.20352952873569913
+      },
+      "baseline_test": {
+        "velocity_mae_m_s": 1.0797050687817922,
+        "spin_mae_rps": 11.542332763354654,
+        "weighted_mse": 4.319307122453909
+      },
+      "fitted_test": {
+        "velocity_mae_m_s": 0.25913530298895576,
+        "spin_mae_rps": 1.992247176161448,
+        "weighted_mse": 0.24767683388273737
+      },
+      "normal_speed_range_m_s": [
+        3.468155036742642,
+        11.620994748267133
+      ],
+      "surface_slip_range_m_s": [
+        0.046286444840518755,
+        14.844424503788744
+      ],
+      "sliding_fraction_train": 0.10802919708029197,
+      "velocity_improvement_pct": 75.99943628297193,
+      "spin_improvement_pct": 82.73964876072051
+    },
+    {
+      "id": 9,
+      "train_count": 612,
+      "test_count": 153,
+      "e": 0.7399892914974836,
+      "mu": 0.607349537037037,
+      "beta": 0.6964699074074073,
+      "train": {
+        "velocity_mae_m_s": 0.2806512607937422,
+        "spin_mae_rps": 2.1774302207722522,
+        "weighted_mse": 0.24251018966218582
+      },
+      "baseline_test": {
+        "velocity_mae_m_s": 1.1122430201752722,
+        "spin_mae_rps": 11.89155624292982,
+        "weighted_mse": 4.549603633299028
+      },
+      "fitted_test": {
+        "velocity_mae_m_s": 0.2913493762519947,
+        "spin_mae_rps": 2.2101276353496293,
+        "weighted_mse": 0.25783414305242697
+      },
+      "normal_speed_range_m_s": [
+        3.4624482183832894,
+        10.865076735684484
+      ],
+      "surface_slip_range_m_s": [
+        0.09275729551989258,
+        14.30278296693911
+      ],
+      "sliding_fraction_train": 0.1111111111111111,
+      "velocity_improvement_pct": 73.8052412137338,
+      "spin_improvement_pct": 81.41431121209496
+    },
+    {
+      "id": 10,
+      "train_count": 632,
+      "test_count": 158,
+      "e": 0.5324402786619423,
+      "mu": 0.21401186342592593,
+      "beta": 0.06264467592592592,
+      "train": {
+        "velocity_mae_m_s": 0.23082199034465228,
+        "spin_mae_rps": 1.3000014580103925,
+        "weighted_mse": 0.14190246889896369
+      },
+      "baseline_test": {
+        "velocity_mae_m_s": 2.1303394194942644,
+        "spin_mae_rps": 7.867918195762775,
+        "weighted_mse": 7.81904909535395
+      },
+      "fitted_test": {
+        "velocity_mae_m_s": 0.23435369180019136,
+        "spin_mae_rps": 1.414244439559835,
+        "weighted_mse": 0.1485738511774707
+      },
+      "normal_speed_range_m_s": [
+        3.3422142838111015,
+        11.014534597796322
+      ],
+      "surface_slip_range_m_s": [
+        0.07882196861545843,
+        14.659831826027547
+      ],
+      "sliding_fraction_train": 0.375,
+      "velocity_improvement_pct": 88.99923225117685,
+      "spin_improvement_pct": 82.02517610920931
+    }
+  ],
+  "sha256": {
+    "source/data/test/racket_01.csv": "299088908425fc913670be9d24caecb417d7582b5c9dc81dd27433411c526070",
+    "source/data/test/racket_02.csv": "9f7fef2d52502998a7fcf474cc17e6f93ddecd93db8d223d03514e071d4fa73b",
+    "source/data/test/racket_03.csv": "c563e6760d213a27297edebe8db284c160f56ad71ba115cf6044cb245dddffd1",
+    "source/data/test/racket_04.csv": "37ad7051208381f3eb59aba82a98c5ec2bb1af8bf18cac23cc3dddd165bfd84f",
+    "source/data/test/racket_05.csv": "b307aa17ec56429a8a8cd3dfa7b6dd90c9a06b082b1493d965b293968f3dec24",
+    "source/data/test/racket_06.csv": "60407dee6884536acb8776161e2add6befbe91ab1d87969ca41cb3ccaa889568",
+    "source/data/test/racket_07.csv": "dfc8eeac3ecc15b65947a0c1d0b5242244a5c2001e914b75cc1ded5081ec6cdb",
+    "source/data/test/racket_08.csv": "7144d6534ce5241df733343ed43bba5369bc5ec38850f45070e3c995928d015c",
+    "source/data/test/racket_09.csv": "03c94312a0c437c6e57dc7f2745719b84ca30307d6ebd11ccc0361a05ff838db",
+    "source/data/test/racket_10.csv": "74b5c9630120a87c236633578aec58c0d2278f6b336e21c224eb881cfccdea21",
+    "source/data/train/racket_01.csv": "5fd5c4c283ff9c82c79ec104ae085b71db7e2a4a255cc33b78ca5fc2226fb675",
+    "source/data/train/racket_02.csv": "0dc388b30693793c7b7890b3b29a9031805956c36b88843f9a55c60cb5d53e91",
+    "source/data/train/racket_03.csv": "9598b219eddb9db6736e320b34acc7af257f425054863668d58cf6eabd01d5eb",
+    "source/data/train/racket_04.csv": "2f1a4afaa4076bb59aae22005b9a249931eac2bbe31f79bbd03c66c888249cde",
+    "source/data/train/racket_05.csv": "619f42ad4bdd94241b16057d0f04fe3bbeb07bafc002e20dd2b1f57c1be616af",
+    "source/data/train/racket_06.csv": "b7dff0e87c16b1c9e1ca64e8858142bd417d664cfa649037be74ac97ca44c2bf",
+    "source/data/train/racket_07.csv": "ce49d528f1de69782f9e3530d450882a61b0d42441c81771b0150f8383f16a12",
+    "source/data/train/racket_08.csv": "a330aacfd5fe046288dbf82af6211ed565e1d05daf104ccfc05ec2276f578b62",
+    "source/data/train/racket_09.csv": "f4061dacf9ffe9933f3b5f25837ca7390ff235ce2d43a28f354bfb6efd414255",
+    "source/data/train/racket_10.csv": "a9579f0421c16d2589813e20ce225737533d9f10b9a20d13cbd0be65618ee27f"
+  },
+  "numpy_version": "2.3.5"
+}

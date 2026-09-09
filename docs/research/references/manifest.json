@@ -1,0 +1,137 @@
+{
+  "recorded_on": "2026-09-09",
+  "papers": [
+    {
+      "id": "gossard2026",
+      "title": "Learning Racket-Ball Bounce Dynamics Across Diverse Rubbers for Robotic Table Tennis",
+      "authors": "Thomas Gossard",
+      "year": 2026,
+      "version": "arXiv v1",
+      "url": "https://arxiv.org/abs/2604.11349v1",
+      "pdf": "docs/research/references/papers/Gossard-2026-2604.11349v1.pdf",
+      "license": "CC BY-SA 4.0 (paper); MIT (repository/code/data snapshot)",
+      "role": "Data source and coordinate/model context; our response fit is not a reproduction of its Gaussian Process benchmark.",
+      "recorded_on": "2026-09-09",
+      "sha256": "4400028e0f12b6665d855fea62aff78210e3024414dc31d231864139ee43cf10"
+    },
+    {
+      "id": "rinaldi2019",
+      "title": "Table Tennis Ball Impacting Racket Polymeric Coatings: Experiments and Modeling of Key Performance Metrics",
+      "year": 2019,
+      "doi": "10.3390/app9010158",
+      "url": "https://www.mdpi.com/2076-3417/9/1/158",
+      "license": "CC BY 4.0, see publisher",
+      "role": "Topsheet/sponge deformation, rate dependence and architecture; not a numerical parameter source for this fit.",
+      "pdf": null,
+      "fulltext_status": "Publisher fetch was rate-limited; bibliographic record and link retained.",
+      "recorded_on": "2026-09-09"
+    },
+    {
+      "id": "karasawa2021",
+      "title": "Evaluation of restitution performance and examination of estimate equation of coefficient of restitution of table tennis racket",
+      "year": 2021,
+      "doi": "10.1299/transjsme.21-00145",
+      "url": "https://www.jstage.jst.go.jp/article/transjsme/87/902/87_21-00145/_article/-char/en",
+      "role": "Blade stiffness, natural frequency and impact speed; supports treating measured profiles as whole racket configurations.",
+      "pdf": null,
+      "recorded_on": "2026-09-09"
+    },
+    {
+      "id": "cross2010",
+      "title": "Impact of a ball on a surface with tangential compliance",
+      "authors": "Rod Cross",
+      "year": 2010,
+      "doi": "10.1119/1.3313455",
+      "url": "https://physics.usyd.edu.au/~cross/PUBLICATIONS/47.%20MoreSpin.pdf",
+      "role": "Tangential elastic energy storage and spin transfer; examples are not a calibration dataset for table-tennis rubbers.",
+      "pdf": null,
+      "recorded_on": "2026-09-09"
+    },
+    {
+      "id": "conti2026",
+      "title": "Physics Models for Sim-to-Real Transfer in Professional-Level Robot Table Tennis",
+      "year": 2026,
+      "version": "arXiv v2",
+      "url": "https://arxiv.org/html/2606.28805v2",
+      "role": "Related aerodynamic/table/racket methodology; its coefficients and residual network are not used in this inverted-rubber fit.",
+      "pdf": null,
+      "recorded_on": "2026-09-09"
+    },
+    {
+      "id": "inaba2017",
+      "title": "Effect of Changing Table Tennis Ball Material from Celluloid to Plastic on the Post-Collision Ball Trajectory",
+      "year": 2017,
+      "doi": "10.1515/hukin-2017-0004",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5304273/",
+      "role": "Table bounce/material effects, not used as racket calibration data.",
+      "pdf": null,
+      "recorded_on": "2026-09-09"
+    },
+    {
+      "id": "achterhold2023",
+      "title": "Black-Box vs. Gray-Box: A Case Study on Learning Table Tennis Ball Trajectory Prediction with Spin and Impacts",
+      "year": 2023,
+      "url": "https://github.com/EmbodiedVision/tabletennis-spin-impacts",
+      "role": "Potential independent flight/table validation data. Data archive not downloaded or used in this fit.",
+      "pdf": null,
+      "recorded_on": "2026-09-09"
+    }
+  ],
+  "data": {
+    "repository": "https://github.com/gossardt/tt_rackets",
+    "commit": "159c6f040dd7832570b537b3b5fd00a97fc28c15",
+    "local": "Calibration/rubber/source",
+    "license_file": "Calibration/rubber/source/LICENSE",
+    "splits": [
+      "train",
+      "test"
+    ],
+    "total_train": 6490,
+    "total_test": 1623,
+    "used_response_ids": [
+      1,
+      2,
+      3,
+      4,
+      9
+    ],
+    "response_train": 3304,
+    "response_test": 827,
+    "linear_velocity_unit": "m/s",
+    "spin_unit": "rad/s",
+    "normal_axis": "+Z in source racket frame",
+    "double_rotation_of_racket_angle": false
+  },
+  "files": {
+    "Calibration/rubber/source/LICENSE": "86263edd89b1884d381fdbea1d49de0bf1b613fb3a675d94f25ee13deb51eec6",
+    "Calibration/rubber/source/README.md": "a3915dbc8da3bd22c2700bc9dd258e16100ab73a64ef36a2a07d34600f656ac0",
+    "Calibration/rubber/source/data/test/racket_01.csv": "299088908425fc913670be9d24caecb417d7582b5c9dc81dd27433411c526070",
+    "Calibration/rubber/source/data/test/racket_02.csv": "9f7fef2d52502998a7fcf474cc17e6f93ddecd93db8d223d03514e071d4fa73b",
+    "Calibration/rubber/source/data/test/racket_03.csv": "c563e6760d213a27297edebe8db284c160f56ad71ba115cf6044cb245dddffd1",
+    "Calibration/rubber/source/data/test/racket_04.csv": "37ad7051208381f3eb59aba82a98c5ec2bb1af8bf18cac23cc3dddd165bfd84f",
+    "Calibration/rubber/source/data/test/racket_05.csv": "b307aa17ec56429a8a8cd3dfa7b6dd90c9a06b082b1493d965b293968f3dec24",
+    "Calibration/rubber/source/data/test/racket_06.csv": "60407dee6884536acb8776161e2add6befbe91ab1d87969ca41cb3ccaa889568",
+    "Calibration/rubber/source/data/test/racket_07.csv": "dfc8eeac3ecc15b65947a0c1d0b5242244a5c2001e914b75cc1ded5081ec6cdb",
+    "Calibration/rubber/source/data/test/racket_08.csv": "7144d6534ce5241df733343ed43bba5369bc5ec38850f45070e3c995928d015c",
+    "Calibration/rubber/source/data/test/racket_09.csv": "03c94312a0c437c6e57dc7f2745719b84ca30307d6ebd11ccc0361a05ff838db",
+    "Calibration/rubber/source/data/test/racket_10.csv": "74b5c9630120a87c236633578aec58c0d2278f6b336e21c224eb881cfccdea21",
+    "Calibration/rubber/source/data/train/racket_01.csv": "5fd5c4c283ff9c82c79ec104ae085b71db7e2a4a255cc33b78ca5fc2226fb675",
+    "Calibration/rubber/source/data/train/racket_02.csv": "0dc388b30693793c7b7890b3b29a9031805956c36b88843f9a55c60cb5d53e91",
+    "Calibration/rubber/source/data/train/racket_03.csv": "9598b219eddb9db6736e320b34acc7af257f425054863668d58cf6eabd01d5eb",
+    "Calibration/rubber/source/data/train/racket_04.csv": "2f1a4afaa4076bb59aae22005b9a249931eac2bbe31f79bbd03c66c888249cde",
+    "Calibration/rubber/source/data/train/racket_05.csv": "619f42ad4bdd94241b16057d0f04fe3bbeb07bafc002e20dd2b1f57c1be616af",
+    "Calibration/rubber/source/data/train/racket_06.csv": "b7dff0e87c16b1c9e1ca64e8858142bd417d664cfa649037be74ac97ca44c2bf",
+    "Calibration/rubber/source/data/train/racket_07.csv": "ce49d528f1de69782f9e3530d450882a61b0d42441c81771b0150f8383f16a12",
+    "Calibration/rubber/source/data/train/racket_08.csv": "a330aacfd5fe046288dbf82af6211ed565e1d05daf104ccfc05ec2276f578b62",
+    "Calibration/rubber/source/data/train/racket_09.csv": "f4061dacf9ffe9933f3b5f25837ca7390ff235ce2d43a28f354bfb6efd414255",
+    "Calibration/rubber/source/data/train/racket_10.csv": "a9579f0421c16d2589813e20ce225737533d9f10b9a20d13cbd0be65618ee27f",
+    "Calibration/rubber/source/python/racket_dynamics/configs/rackets.py": "4a6ff68dbae6717011cff8e2c42662de0a52017489d75a61920fab021a5168c1",
+    "Calibration/rubber/source/python/racket_dynamics/data/dataset.py": "17114b6fa9394c6b2e3f34cf66bae94832a9de1852287c012300aa5c1bf9ccd2",
+    "Calibration/rubber/source/python/racket_dynamics/evaluation/metrics.py": "417f8a9ee44c8d41239a0fab53d3f18a62092803f8b0f510bfced4c951157212",
+    "Calibration/rubber/source/python/racket_dynamics/models/baselines.py": "6ca9c1068ae6da63f1a72f1df53ee2baad49e359b6bd742de7c519901b99251b",
+    "Calibration/rubber/source/python/racket_dynamics/models/parametric.py": "9b1dd9e8b381a7bf06cf1e42eb50c651cf859bdd6ed826db116eb41d2787633b",
+    "Calibration/rubber/source/python/racket_dynamics/physics/bounce.py": "8a090009ad9b19842a6555d58c1b894b8040523f25e0b80124a710880db1f530",
+    "Calibration/rubber/source/python/racket_dynamics/physics/constants.py": "aa41fb4d10203854837a014577776e6384eed861aa0f74558b236169b24bc1b3",
+    "Calibration/rubber/source/python/racket_dynamics/physics/racket.py": "4d5b6953f3843789b42f136c6f4466417a276c388adf7ab2025c4398eb5f7120"
+  }
+}

@@ -1,0 +1,237 @@
+{
+  "protocol": "5-fold training-only grouped CV (angle,traj_dir); choose simplest within 2% of minimum weighted MSE, then refit full train; author test split untouched for selection",
+  "families": [
+    "constant",
+    "normal-speed",
+    "normal-and-slip"
+  ],
+  "profiles": [
+    {
+      "id": 1,
+      "train_count": 794,
+      "test_count": 199,
+      "cv_mse": {
+        "constant": 0.26445838926091336,
+        "normal-speed": 0.19738497992318685,
+        "normal-and-slip": 0.17264518285813524
+      },
+      "model": {
+        "family": "normal-and-slip",
+        "normal_range": [
+          3.5301915774083827,
+          11.672525392520132
+        ],
+        "slip_range": [
+          0.12337703317988848,
+          14.577605991198867
+        ],
+        "normal_center": 6.867584360588001,
+        "normal_scale": 1.7369593469157818,
+        "slip_center": 4.75442336264206,
+        "slip_scale": 3.1950803957841147,
+        "e": [
+          0.768264096680754,
+          -0.037885033808483286
+        ],
+        "mu": 0.5838758680555556,
+        "beta": [
+          0.7168549382716048,
+          -0.028,
+          -0.06699999999999999
+        ]
+      },
+      "constant_test": {
+        "velocity_mae_m_s": 0.3003417942750856,
+        "spin_mae_rps": 1.928221587923859,
+        "weighted_mse": 0.20798037600036376
+      },
+      "response_test": {
+        "velocity_mae_m_s": 0.21321130931358392,
+        "spin_mae_rps": 1.875406581066701,
+        "weighted_mse": 0.14475714591255223
+      }
+    },
+    {
+      "id": 2,
+      "train_count": 622,
+      "test_count": 156,
+      "cv_mse": {
+        "constant": 0.1913678134545195,
+        "normal-speed": 0.14727928698274245,
+        "normal-and-slip": 0.11624705237531475
+      },
+      "model": {
+        "family": "normal-and-slip",
+        "normal_range": [
+          3.523081952651235,
+          11.625952753818032
+        ],
+        "slip_range": [
+          0.08455853230415288,
+          14.889216826817687
+        ],
+        "normal_center": 6.840492298026986,
+        "normal_scale": 1.713566485203912,
+        "slip_center": 4.934361182379096,
+        "slip_scale": 3.2141474426729904,
+        "e": [
+          0.7386886290777736,
+          -0.031290549186777684
+        ],
+        "mu": 0.6301721643518519,
+        "beta": [
+          0.6861099537037035,
+          0.031,
+          -0.04900000000000001
+        ]
+      },
+      "constant_test": {
+        "velocity_mae_m_s": 0.2672161300653738,
+        "spin_mae_rps": 1.3463520688635322,
+        "weighted_mse": 0.15447127594177096
+      },
+      "response_test": {
+        "velocity_mae_m_s": 0.19067266140137124,
+        "spin_mae_rps": 1.1092456314556904,
+        "weighted_mse": 0.08433267206014534
+      }
+    },
+    {
+      "id": 3,
+      "train_count": 616,
+      "test_count": 154,
+      "cv_mse": {
+        "constant": 0.2691188246863823,
+        "normal-speed": 0.19838527766203734,
+        "normal-and-slip": 0.17825181870125292
+      },
+      "model": {
+        "family": "normal-and-slip",
+        "normal_range": [
+          3.380113288615203,
+          10.869822213554993
+        ],
+        "slip_range": [
+          0.13589038365350015,
+          14.891147770360245
+        ],
+        "normal_center": 6.899780078891197,
+        "normal_scale": 1.7197211287674918,
+        "slip_center": 4.652761066682622,
+        "slip_scale": 3.2020507257214197,
+        "e": [
+          0.7241872047519422,
+          -0.04052323653958995
+        ],
+        "mu": 0.603298611111111,
+        "beta": [
+          0.7167947530864197,
+          -0.033,
+          -0.044000000000000004
+        ]
+      },
+      "constant_test": {
+        "velocity_mae_m_s": 0.3449147219183361,
+        "spin_mae_rps": 2.1816814300583673,
+        "weighted_mse": 0.29479594265938963
+      },
+      "response_test": {
+        "velocity_mae_m_s": 0.24196506022394396,
+        "spin_mae_rps": 2.0143368751882216,
+        "weighted_mse": 0.19797512796645791
+      }
+    },
+    {
+      "id": 4,
+      "train_count": 660,
+      "test_count": 165,
+      "cv_mse": {
+        "constant": 0.22535433049649847,
+        "normal-speed": 0.17888690213356934,
+        "normal-and-slip": 0.15682772201687398
+      },
+      "model": {
+        "family": "normal-and-slip",
+        "normal_range": [
+          3.5025483740941734,
+          11.3151622338479
+        ],
+        "slip_range": [
+          0.023692581227410588,
+          14.820857108728427
+        ],
+        "normal_center": 6.726949735336573,
+        "normal_scale": 1.66135730001091,
+        "slip_center": 4.674178646219193,
+        "slip_scale": 3.0621143469372645,
+        "e": [
+          0.6929474808655617,
+          -0.03133075847824094
+        ],
+        "mu": 0.62109375,
+        "beta": [
+          0.6840524691358023,
+          0.033,
+          -0.036000000000000004
+        ]
+      },
+      "constant_test": {
+        "velocity_mae_m_s": 0.2639674326266446,
+        "spin_mae_rps": 1.2319844392511048,
+        "weighted_mse": 0.1472353901333348
+      },
+      "response_test": {
+        "velocity_mae_m_s": 0.19253583639869884,
+        "spin_mae_rps": 1.1455871842031236,
+        "weighted_mse": 0.09301501567436381
+      }
+    },
+    {
+      "id": 9,
+      "train_count": 612,
+      "test_count": 153,
+      "cv_mse": {
+        "constant": 0.24387281884186215,
+        "normal-speed": 0.19495761441360487,
+        "normal-and-slip": 0.1660299742986129
+      },
+      "model": {
+        "family": "normal-and-slip",
+        "normal_range": [
+          3.4624482183832894,
+          10.865076735684484
+        ],
+        "slip_range": [
+          0.09275729551989258,
+          14.30278296693911
+        ],
+        "normal_center": 6.74562061526684,
+        "normal_scale": 1.6672960250732773,
+        "slip_center": 4.538190803672648,
+        "slip_scale": 3.1989970954634157,
+        "e": [
+          0.7542230958714939,
+          -0.03072347847770419
+        ],
+        "mu": 0.607349537037037,
+        "beta": [
+          0.7354699074074073,
+          -0.043000000000000003,
+          -0.068
+        ]
+      },
+      "constant_test": {
+        "velocity_mae_m_s": 0.2913493762519947,
+        "spin_mae_rps": 2.21012763534963,
+        "weighted_mse": 0.25783414305242713
+      },
+      "response_test": {
+        "velocity_mae_m_s": 0.18030203742021741,
+        "spin_mae_rps": 2.073403874260543,
+        "weighted_mse": 0.16575155941608782
+      }
+    }
+  ],
+  "source_commit": "159c6f040dd7832570b537b3b5fd00a97fc28c15",
+  "numpy_version": "2.3.5"
+}

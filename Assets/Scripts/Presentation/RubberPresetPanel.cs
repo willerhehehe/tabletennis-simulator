@@ -1,0 +1,62 @@
+using UnityEngine;
+
+namespace TableTennis
+{
+    public readonly struct RubberChoice
+    {
+        public readonly RubberCalibration Profile;
+        public readonly bool Response;
+        public RubberChoice(RubberCalibration profile, bool response) { Profile = profile; Response = response; }
+    }
+
+    // Selection is derived from the effective material, never from a separate browse cursor.
+    public sealed class RubberPresetPanel
+    {
+        bool details;
+        public static RubberCalibration Current(RubberCoefficients c, int responseId)
+        {
+            foreach (var p in RubberCalibrations.All)
+                if (responseId != 0 ? p.Id == responseId : p.Matches(c.Restitution, c.Friction, c.Tangent)) return p;
+            return null;
+        }
+        public RubberChoice? DrawSelector(RubberCoefficients c, int responseId, GUIStyle small)
+        {
+            var current = Current(c, responseId); int index = current == null ? -1 : current.Id - 1;
+            int next = index;
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("‹", GUILayout.Width(36))) next = index < 0 ? RubberCalibrations.All.Count - 1 : (index + RubberCalibrations.All.Count - 1) % RubberCalibrations.All.Count;
+            GUILayout.Label(current == null ? "自定义参数" : $"R{current.Id:00} · {current.Name}", small);
+            if (GUILayout.Button("›", GUILayout.Width(36))) next = (index + 1) % RubberCalibrations.All.Count;
+            GUILayout.EndHorizontal();
+            if (next != index)
+            {
+                var p = RubberCalibrations.All[next];
+                return new RubberChoice(p, responseId != 0 && InvertedRubberResponses.Find(p.Id) != null);
+            }
+            if (current != null)
+            {
+                foreach (var part in current.Equipment.Split(new[] { " / " }, System.StringSplitOptions.None))
+                    GUILayout.Label(part, small);
+                if (InvertedRubberResponses.Find(current.Id) != null)
+                {
+                    int kind = GUILayout.Toolbar(responseId == 0 ? 0 : 1, new[] { "常数拟合", "随触球速度" });
+                    if ((kind == 1) != (responseId != 0)) return new RubberChoice(current, kind == 1);
+                }
+            }
+            return null;
+        }
+        public void DrawDetails(RubberCoefficients c, int responseId, GUIStyle button, GUIStyle small)
+        {
+            if (GUILayout.Button((details ? "− " : "+ ") + "标定依据与适用范围", button)) details = !details;
+            if (!details) return;
+            var p = Current(c, responseId);
+            if (p == null) { GUILayout.Label("当前是自定义系数，未对应已标定的整拍配置。", small); return; }
+            var response = responseId == 0 ? null : InvertedRubberResponses.Get(responseId);
+            GUILayout.Label($"独立测试 {p.TestCount} 次\n平面速度误差 {response?.VelocityError ?? p.VelocityError:0.00} m/s · 旋转误差 {response?.SpinErrorRps ?? p.SpinErrorRps:0.00} rps", small);
+            GUILayout.Label($"训练覆盖：法向速度 {p.NormalMin:0.0}–{p.NormalMax:0.0} m/s\n触点滑动速度 {p.SlipMin:0.0}–{p.SlipMax:0.0} m/s", small);
+            GUILayout.Label(p.Limited ? "长胶常数近似；未模拟逐根颗粒弯曲，μ 也不能由这批数据唯一确定。" : "整拍组合的等效拟合，验证限于平面碰撞。", small);
+            GUILayout.Label("β=-1 表示无切向作用；β<0 保留同向滑动；β>0 允许切向回弹。", small);
+            if (GUILayout.Button("查看数据来源", button)) Application.OpenURL(RubberCalibrations.Source);
+        }
+    }
+}

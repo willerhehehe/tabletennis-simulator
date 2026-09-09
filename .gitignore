@@ -1,0 +1,20 @@
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]in/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+Builds/
+Artifacts/
+.DS_Store
+*.csproj.user
+.tools/
+
+# Local automation traces, language caches and credentials
+.playwright-mcp/
+__pycache__/
+*.py[cod]
+node_modules/
+.env
+.env.*
+!.env.example

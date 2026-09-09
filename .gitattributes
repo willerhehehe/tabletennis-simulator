@@ -1,0 +1,4 @@
+*.pdf binary
+*.otf binary
+# Preserve archived upstream data and source checksums on every platform.
+Calibration/rubber/source/** -text

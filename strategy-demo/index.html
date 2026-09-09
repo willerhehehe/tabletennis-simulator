@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>乒乓策略 · 对决</title>
+<link rel="icon" href="data:,">
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#20332e;background:#f3f5f1;font-size:16px;line-height:1.55}*{box-sizing:border-box}body{max-width:1040px;margin:auto;padding:24px}h1{font-size:28px;margin:0}h2{font-size:21px;margin:0 0 12px}h3{font-size:16px;margin:18px 0 8px}p{margin:10px 0}.muted,small{color:#58665f}header{margin-bottom:24px}main{background:white;border:1px solid #cbd4cb;border-radius:8px;padding:24px}button,select,input{font:inherit;min-height:44px;border:1px solid #85968c;border-radius:5px;background:white;color:inherit;padding:8px 12px}button{cursor:pointer}button:disabled{opacity:.4;cursor:not-allowed}button:hover:not(:disabled){background:#e2eee5}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #dc8a00;outline-offset:2px}.primary{background:#225b43;color:white;border-color:#225b43}.primary:hover:not(:disabled){background:#16412f}.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.row label{display:flex;gap:8px;align-items:center}.notice{background:#edf4ed;padding:12px;border-left:4px solid #38785b}.score{font-size:22px;font-weight:700}.error{color:#a42f20;min-height:25px}details{margin-top:20px;border-top:1px solid #d5ded5;padding-top:12px}summary{cursor:pointer}ol{padding-left:24px}.log{max-height:240px;overflow:auto;font-size:14px}.alloc{display:grid;grid-template-columns:1fr 100px;gap:10px;max-width:440px;margin:16px 0}.alloc input{width:100%}.actions{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap}.steps{font-size:14px;color:#58665f;margin:12px 0}.pill{border:1px solid #cad6cb;padding:5px 10px;border-radius:4px}footer{margin-top:16px;font-size:13px;color:#58665f}@media(max-width:650px){body{padding:12px}main{padding:16px}h1{font-size:24px}.score{font-size:19px}}
+</style>
+<style>
+body{max-width:1200px;padding:20px}header{margin-bottom:14px}header p{margin:4px 0}main{padding:20px}.play-layout{display:grid;grid-template-columns:minmax(360px,1.45fr) minmax(300px,1fr);gap:26px;align-items:start}#stage{padding-top:10px}#stage h2{font-size:21px}#stage .row{align-items:stretch;flex-direction:column;gap:10px}#stage .row label{justify-content:space-between}#stage select{flex:1;max-width:200px}#stage .primary{width:100%;margin-top:12px}.own-skills{margin:10px 0 16px;padding-top:6px;font-size:14px}.court-title{display:flex;justify-content:space-between;align-items:center;margin:6px 0 10px;font-size:14px}.court-title span{color:#566e5d;font-size:12px}.court-board{position:relative;max-width:560px;margin:auto}.court-board svg{display:block;width:100%;height:auto}.court-hitareas{position:absolute;inset:0;pointer-events:none}.court-hitareas button{position:absolute;transform:translate(-50%,-50%);padding:0;min-height:0;pointer-events:auto;border-radius:7px}.court-position{width:13%;height:6.7%;background:rgba(39,111,74,.04);border:2px solid #628e71;font-size:0}.court-position.chosen{border:3px solid #226746;background:transparent}.court-position:hover:not(:disabled){background:rgba(43,110,71,.18)}.court-position:disabled{background:transparent;border-color:transparent;opacity:1}.court-target{width:10%;height:9%;background:rgba(236,251,244,.06);border:1px dashed #93c4b1;color:#e4f1e9;font-size:14px}.court-target.chosen{border:3px solid #e5bfff;background:rgba(229,191,255,.16)}.court-target:hover:not(:disabled){background:rgba(229,191,255,.28)}.court-caption{font-size:13px;color:#53685a;margin:10px 0 0}.steps{margin-bottom:12px}#reasons{font-size:13px}.notice{font-size:14px}@media(max-width:760px){.play-layout{grid-template-columns:1fr;gap:12px}body{padding:10px}main{padding:12px}.court-board{max-width:480px}.court-title{gap:8px}.court-target{font-size:12px}#stage{padding-top:0}}
+.aim-effect{border-left:3px solid #b95535;padding:8px 12px;background:#fbf0e9;font-size:14px;margin:8px 0 12px}
+</style>
+<style>
+header h1{font-size:24px}header p{font-size:13px}.court-board{max-width:410px}.play-layout{grid-template-columns:minmax(340px,1.35fr) minmax(300px,1fr);gap:26px}.court-title{margin-top:0}.aim-effect{font-size:12px;padding:6px 10px;min-height:48px;margin:6px 0}.court-legend{margin-top:6px;padding-top:0;border:0;font-size:12px}#stage{padding-top:0}#stage h2{font-size:23px;line-height:1.3;margin:4px 0 12px}.turn-label{font-size:12px;color:#49745c;letter-spacing:.08em;margin:0}.ball-cue{font-size:14px;background:#eef2e9;padding:10px 12px;border-radius:6px;margin-bottom:14px}.action-deck{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.move-action{grid-column:1/-1;text-align:left;display:flex;flex-direction:column;gap:3px;padding:12px 16px;border-color:#acbcae;background:#fafcf7}.move-action strong{font-size:20px}.move-action span,.stroke-action span{font-size:12px;color:#53665a}.stroke-action{display:flex;flex-direction:column;align-items:flex-start;gap:5px;text-align:left;min-height:94px;padding:12px;border:1px solid #acbcae;background:#fafcf7}.stroke-action strong{font-size:18px}.stroke-action small{font-size:11px}.stroke-action[aria-pressed=true]{background:#23553d;color:#fff;border-color:#23553d}.stroke-action[aria-pressed=true] span,.stroke-action[aria-pressed=true] small{color:#e1ece1}.stroke-action:hover:not(:disabled){border-color:#23553d}.stroke-action:active,.move-action:active,.court-target:active{transform:translateY(1px)}.court-hitareas .court-target:active{transform:translate(-50%,-50%) scale(.94)}#stage details{margin-top:12px;padding-top:8px;font-size:13px}#stage details .action-deck{margin-top:10px}.fire-hint{font-size:13px;padding:10px 12px;background:#fff1d0;color:#624b14;border-left:3px solid #cda548}.chips{display:flex;gap:6px;margin:10px 0}.chips button{flex:1;font-size:13px;min-height:36px;padding:4px 8px}.chips [aria-pressed=true]{background:#23553d;color:white}.last-event{font-size:14px}.build-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}.build-presets button{display:flex;flex-direction:column;align-items:flex-start;padding:14px;gap:6px}.build-presets strong{font-size:18px}.build-presets span{font-size:13px;color:#526858}.build-presets [aria-pressed=true]{outline:2px solid #23553d;outline-offset:-2px}#start{margin-top:8px;padding:10px 28px}.court-hitareas .court-target{background:rgba(247,255,248,.1)}.court-hitareas .court-target:hover{background:rgba(229,191,255,.4)}
+@media(max-width:760px){.play-layout{grid-template-columns:1fr}.court-board{max-width:340px}.build-presets{grid-template-columns:1fr}.build-presets button{flex-direction:row;justify-content:space-between}.aim-effect{min-height:0}#stage .action-deck{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){body{padding-bottom:108px}.court-board{max-width:290px}.court-hitareas .court-position{min-height:26px}.court-board [data-player] text{font-size:24px}.steps{display:none}header p{display:none}.aim-effect{font-size:12px}.play-layout{gap:12px}#stage #main-actions,#stage #prepare-actions{position:fixed;bottom:8px;left:8px;right:8px;z-index:5;padding:7px;background:#e8eee3;border:1px solid #aebcae;border-radius:10px;box-shadow:0 4px 18px #223b2220;gap:5px}#stage #main-actions{grid-template-columns:repeat(4,minmax(0,1fr))}#stage #prepare-actions{grid-template-columns:repeat(3,minmax(0,1fr))}.move-action{grid-column:auto;min-height:62px;padding:8px;justify-content:center;align-items:center}.move-action strong{font-size:16px}.move-action span,#main-actions .stroke-action span{display:none}#main-actions .stroke-action{min-height:72px;padding:7px 5px;gap:4px}#main-actions .stroke-action strong{font-size:14px}#main-actions .stroke-action small{font-size:11px}.fire-hint{font-size:12px}}
+</style>
+<style>.point-callout{position:absolute;top:43%;left:50%;transform:translate(-50%,-50%);padding:14px 25px;background:#fff8df;color:#244e39;border:2px solid #cdad58;border-radius:10px;font-size:30px;font-weight:800;white-space:nowrap;pointer-events:none}[data-motion-ball]{pointer-events:none;filter:drop-shadow(0 2px 3px #5b512866)}</style>
+<header><h1>乒乓策略</h1><p class="muted">读来球，抢位置，点球台出手。<span id="build-version"></span> · 单人对练 / 同机双人</p></header>
+<main id="app"></main>
+<footer>本机试玩 · 刷新会重新开局</footer>
+<script type="module">
+import { VERSION, skills, spins, allocation, newGame, act, view, botAction, distance, landing, movement, lateBudget, shotPreview, techniqueOptions, SERVES, TECH, SCENARIOS, scenarioGame, publicReplay } from './game.mjs';
+import { courtMarkup, aimSummary, playerPoint, bouncePoint } from './court.mjs';
+import { receivePlan, actionOrder } from './controls.mjs';
+import { incomingFlight, movePawn, flyBall, showMiss } from './motion.mjs';
+const app = document.querySelector('#app');
+let game, config, builds = [], setupPlayer = 0, curtain = false, selected, target;
+let busy=false;
+let playHand='正手',playRead='下旋',playTech=null,manualPosition=false,recover=true;
+const $ = id => document.getElementById(id);
+$('build-version').textContent='v'+VERSION;
+const name = n => n ? (game?.bot ? 'B（电脑）' : 'B') : 'A（你）';
+const option = (values, value) => values.map(v => `<option ${v === value ? 'selected' : ''}>${v}</option>`).join('');
+const select = (id, title, values, value) => `<label>${title} <select id="${id}">${option(values, value)}</select></label>`;
+const showOdds=(e,serve)=>{if($('odds'))$('odds').textContent=`${serve?'发球':'按你的判断、中档旋转估计'}：正常 ${e.clean}% / 冒高 ${e.chance-e.clean}% / 失误 ${100-e.chance}%`;};
+const errorBox = '<p id="error" class="error" role="alert"></p>';
+const help = `<details><summary>规则与战术提示</summary><ol>
+<li>回球由技术产生旋转。摆短 / 劈长输出下旋，拧拉输出侧上旋，拉球输出上旋；高球才可扣杀。基础模型采用反胶。</li>
+<li>球的长度与第一次落点分开：短球预计能再跳一次，半出台在端线附近，长球会出台。长球可近台挡，不必先退到中台。</li>
+<li>每板先预判移动，再调整，最后选技术和落点。看清后快球最多补 1 步，慢球最多补 2 步。提前能抢早摆短或快带；等待获得更可靠的旋转线索，但放弃提前移动并错过抢早技术。线索不保证正确。</li>
+<li>旋转由你判断。显示的百分比是按判断估计的接回概率；骰子也可能产生冒高回球，给对手下一板机会，而不是直接失分。</li>
+<li>速度、旋转、高度与技术质量分别计算。摆短也可以高质量。贴边落点更冒险，先调动再打空当。</li>
+<li>挥拍后的还原可向中央走一步；大动作会减少下一板移动余量。跨身体使用正反手也有代价。</li>
+<li>10 点隐藏属性，单项最多 5；零点也有基础能力。试探记录展示实际回球表现，不公布对手属性。</li>
+<li>每人两次发球，平分延长阶段每分换发；净胜两分。5 分短局在 4:4 进入延长，11 分局在 10:10 进入延长。</li>
+<li>同机双人请轮流回避屏幕。本地原型无网络防作弊；数值仍需真人试玩验证。原始规则研究和设计依据可在项目文档中查看。</li></ol></details>`;
+function allocationScreen() {
+  app.innerHTML = `<h2>${setupPlayer ? 'B 的秘密加点' : '选你的打法'}</h2><p>${setupPlayer ? '请 A 暂时回避屏幕。B 分配自己的 10 点。' : '选一种打法，马上开局。也可以展开自定义，分配自己的 10 点能力。'}</p>
+  <div class="build-presets"><button data-build="2,2,2,2,2" aria-pressed="true"><strong>均衡型</strong><span>攻守都能接</span></button><button data-build="4,1,1,1,3" aria-pressed="false"><strong>正手突击</strong><span>用正手抢主动</span></button><button data-build="1,2,1,4,2" aria-pressed="false"><strong>反手控制</strong><span>稳住，再调动</span></button></div><details><summary>自定义加点${setupPlayer?'':' / 双人 / 赛制'}</summary>
+  ${setupPlayer ? '' : `<div class="row">${select('mode','对局方式',['单人对练','同机双人'])}${select('target','每局得分',['5 分快速测试','11 分标准局'])}${select('best','赛制',['三局两胜','五局三胜'])}</div>`}
+  <h3>${setupPlayer ? 'B' : 'A'} 的属性（对手不可见）</h3><div class="alloc">${skills.map((s,i)=>`<label for="skill${i}">${s}</label><input id="skill${i}" type="number" min="0" max="5" step="1" value="2">`).join('')}</div>
+  <p id="remaining" aria-live="polite"></p></details>${errorBox}<button id="start" class="primary">${setupPlayer ? '锁定 B 属性' : '开始对局'}</button><details open><summary>先用一个情景学会战术</summary><div class="row">${Object.keys(SCENARIOS).map(k=>`<button class="scenario" data-key="${k}">${k}</button>`).join('')}</div></details>${help}`;
+  app.querySelectorAll('.scenario').forEach(b=>b.onclick=()=>{game=scenarioGame(b.dataset.key);config={bot:true,target:11,bestOf:3};curtain=false;render();});
+  const values = () => skills.map((_,i) => Number($('skill'+i).value));
+  const update = () => { $('remaining').textContent = `剩余点数：${10-values().reduce((s,n)=>s+n,0)} · 每项上限 5`; $('start').disabled = !allocation(values()); };
+  app.querySelectorAll('input').forEach(x => x.oninput = update); update();
+  app.querySelectorAll('[data-build]').forEach(b=>b.onclick=()=>{b.dataset.build.split(',').forEach((n,i)=>$('skill'+i).value=n);app.querySelectorAll('[data-build]').forEach(x=>x.setAttribute('aria-pressed',x===b));update();});
+  $('start').onclick = () => {
+    if (!allocation(values())) return;
+    builds[setupPlayer] = values();
+    if (!setupPlayer) config = { bot: $('mode').value === '单人对练', target: $('target').value.startsWith('5') ? 5 : 11, bestOf: $('best').value.startsWith('三') ? 3 : 5 };
+    if (!setupPlayer && !config.bot) {
+      setupPlayer = 1; app.innerHTML = '<h2>请将操作交给 B</h2><p>A 的属性已隐藏。A 请暂时回避屏幕。</p><button id="handoff" class="primary">我是 B，开始加点</button>';
+      $('handoff').onclick = allocationScreen;
+    } else {
+      if(config.bot) builds[1] = [[4,1,1,1,3],[1,2,1,4,2],[2,1,2,1,4]][Math.floor(Math.random()*3)];
+      tossScreen();
+    }
+  };
+}
+function tossScreen() {
+  app.innerHTML = '<h2>由 A 猜左右手，决定首发</h2><p>猜中 A 先发，猜错 B 先发。</p><div class="row"><button id="left">猜左手</button><button id="right">猜右手</button></div>';
+  const start = hand => { game = newGame({...config, builds, hand}); curtain = !game.bot; runBot(); render(); };
+  $('left').onclick = () => start('左'); $('right').onclick = () => start('右');
+}
+function runBot() {
+  // ponytail: 简单随机策略用于流程试玩；体验不足后再做会试探的对手。
+  while (game.bot && game.actor === 1 && !['pointEnd','setEnd','matchEnd'].includes(game.phase)) act(game, botAction(view(game)));
+}
+async function submit(action) {
+  if(busy)return;
+  const actor=game.actor,before=view(game),phase=game.phase,svg=$('court')?.querySelector('svg');
+  busy=true;app.inert=true;app.setAttribute('aria-busy','true');
+  try {
+    act(game,action);
+    const contact=action.pos||before.own.pos;
+    await movePawn(svg,actor,before.own.pos,contact).catch(()=>{});
+    if(phase==='shot'||action.action==='return') {
+      if(game.phase==='predict'&&game.ball.from===actor){
+        await Promise.all([flyBall(svg,{from:playerPoint(contact,true),to:bouncePoint(game.ball.target,false)}),movePawn(svg,actor,contact,game.players[actor].pos)]).catch(()=>{});
+      } else await showMiss(svg,contact).catch(()=>{});
+    }
+    curtain=!game.bot&&actor!==game.actor;
+    runBot();render();
+    if(game.bot&&game.actor===0&&game.phase==='predict')await flyBall($('court')?.querySelector('svg'),incomingFlight(view(game)),true).catch(()=>{});
+  } catch(e) { if($('error'))$('error').textContent=e.message; }
+  finally {busy=false;app.inert=false;app.removeAttribute('aria-busy');}
+}
+
+let courtSelect;
+const aimRows=key=>(game.ball?TECH[key]:SERVES[key])?.length==='短'?[0]:[1];
+function drawCourt() {
+  if (!$('court')) return;
+  const phase=game.phase, mode=phase==='shot'?'targets':phase==='adjust'?'return':['serverPosition','receiverPosition','predict'].includes(phase)?'positions':null;
+  const max=phase==='predict'?Math.ceil(movement(game)/2):phase==='adjust'?lateBudget(game,playHand):9;
+  $('court').innerHTML=courtMarkup(view(game),{mode,choice:mode==='targets'?target:selected,targetChoice:target,max,hand:playHand,rows:['shot','adjust'].includes(phase)?aimRows(playTech):[0,1],technique:playTech,instant:true});
+  $('court').querySelectorAll('[data-kind=target]').forEach(b=>{b.onpointerenter=b.onfocus=()=>{
+    if(busy)return;
+    target={x:Number(b.dataset.x),y:Number(b.dataset.y)};const v=view(game),end=bouncePoint(target,false),start=playerPoint(mode==='return'?selected:v.own.pos,true);
+    const path=$('court').querySelector('[data-plan]');if(path)path.setAttribute('d',`M${start.x} ${start.y}L${end.x} ${end.y}`);
+    const mark=$('court').querySelector('[data-aim]');if(mark){mark.setAttribute('cx',end.x);mark.setAttribute('cy',end.y);}
+    const op=playerPoint(v.positions[1-v.actor],false),reach=playerPoint({x:target.x,y:v.positions[1-v.actor].y},false);
+    $('court').querySelector('[data-displacement]')?.setAttribute('d',`M${op.x} ${op.y-27}H${reach.x}`);
+    $('court').querySelector('[data-displacement-cap]')?.setAttribute('d',`M${reach.x} ${op.y-34}v14`);
+    $('court').querySelector('.aim-effect').textContent=aimSummary(v,playTech,target);
+    const trial={...v,own:{...v.own,pos:selected},receive:v.receive&&{...v.receive,hand:playHand,read:playRead}};showOdds(shotPreview(trial,playTech,target),!v.ball);
+  };});
+  $('court').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    if(busy)return;
+    const phaseBefore=game.phase,actorBefore=game.actor;
+    courtSelect?.({x:Number(b.dataset.x),y:Number(b.dataset.y)},b.dataset.kind);
+    if(game.phase!==phaseBefore||game.actor!==actorBefore)return;
+    drawCourt();
+    // 重绘后保留键盘焦点。
+    $('court').querySelector(`button[data-kind="${b.dataset.kind}"][data-x="${b.dataset.x}"][data-y="${b.dataset.y}"]`)?.focus({preventScroll:true});
+  });
+}
+function wireCourt(fn) { courtSelect=fn;drawCourt(); }
+function render() {
+  if (curtain) {
+    app.innerHTML = `<h2>请将操作交给 ${game.actor?'B':'A'}</h2><p>上一位玩家请回避屏幕，下一位可查看自己的信息并决策。</p><button class="primary" id="handoff">我是 ${game.actor?'B':'A'}，继续</button>`;
+    $('handoff').onclick=()=>{curtain=false;render();};return;
+  }
+  const v=view(game), phase=game.phase, end=['pointEnd','setEnd','matchEnd'].includes(phase);
+  app.innerHTML = `<div class="row"><span class="score">A ${game.score[0]} : ${game.score[1]} B</span><span class="pill">局数 ${game.sets[0]} : ${game.sets[1]}</span><span>${game.target} 分制 · ${game.bestOf} 局制 · ${game.server?'B':'A'} 发球</span></div>
+  <p class="steps">本分 ${game.rally} 板 · ${game.bot?'单人对练':'双人对决'}</p>
+  <div class="play-layout"><div id="court"></div><div><section id="stage"></section>${errorBox}</div></div>
+  <p class="last-event" aria-live="polite">${v.lastActions.some(Boolean)?v.lastActions.filter(Boolean).map(a=>`${a.actor?'B':'A'}：${a.headline}（骰 ${a.roll}）`).join('<br>'):'先看站位，再决定战术。'}</p>
+  <details><summary>对手试探记录</summary><p>${['正手','反手'].map(h=>{const n=v.scouting[1-v.actor][h];return n?`${h}：尝试 ${n.attempts} / 接回 ${n.success} / 冒高 ${n.loose}`:`${h}：尚无观察`;}).join('；')}。少量样本不代表真实能力。</p></details>
+  <details><summary>最近的对局记录</summary><ol class="log">${game.history.slice(-10).map(s=>`<li>${s}</li>`).join('')}</ol></details>
+  ${help}<div class="actions"><button id="export">导出试玩记录</button><button id="reset">重新开局</button></div>`;
+  $('reset').onclick=()=>{if(confirm('结束当前比赛并重新加点？')){game=null;builds=[];setupPlayer=0;allocationScreen();}};
+  $('export').onclick=()=>{
+    const data=publicReplay(game);
+    const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+    const a=document.createElement('a');a.href=url;a.download='tabletennis-playtest.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  };
+  const stage=$('stage');
+  if(game.scenario){const n=document.createElement('p');n.className='notice';n.textContent=SCENARIOS[game.scenario].description;app.querySelector('.play-layout').before(n);}
+
+  courtSelect=null;selected={...v.own.pos};target={x:2,y:1};
+  playHand=v.receive?.hand||'正手';playRead=v.receive?.read||v.ball?.hintSpin||'下旋';playTech=null;manualPosition=false;recover=true;
+  if(end) {
+    stage.innerHTML=`<h2>${phase==='matchEnd'?`${game.winner?'B':'A'} 赢得比赛`:phase==='setEnd'?'本局结束':`${game.completedPoints.at(-1)?.winner?'B':'A'} 得分`}</h2><p class="notice">${game.result}</p>${phase==='matchEnd'||game.scenario?'<p>可以导出记录，或重新开局调整加点。</p>':'<button class="primary" id="next">'+(phase==='setEnd'?'开始下一局':'开始下一分')+'</button>'}`;
+    if($('next'))$('next').onclick=()=>submit({});if(game.scenario){const b=document.createElement('button');b.textContent='重试本情景';b.onclick=()=>{game=scenarioGame(game.scenario);render();};stage.append(b);}drawCourt();
+    const point=document.createElement('div');point.className='point-callout';point.textContent=`${game.completedPoints.at(-1)?.winner?'B':'A'} +1`;$('court').querySelector('.court-board').append(point);return;
+  }
+  const own=`<details class="own-skills"><summary>查看自己的能力</summary><p>${skills.map((s,i)=>s+' '+v.own.skills[i]).join(' / ')}</p></details>`;
+  if(phase==='serverPosition'||phase==='receiverPosition') {
+    if(phase==='serverPosition')selected.y=0;
+    stage.innerHTML=`<p class="turn-label">${name(game.actor)} · ${phase==='serverPosition'?'发球':'接发球'}</p><h2>点一个站位</h2><p class="muted">直接点场地，就在那个位置准备。</p><button class="primary" id="stay">就在这里</button>${own}`;
+    wireCourt(p=>submit({pos:p}));$('stay').onclick=()=>submit({pos:selected});return;
+  }
+  const spinChips=()=>`<div class="chips" aria-label="旋转判断">${spins.map(spin=>`<button data-spin="${spin}" aria-pressed="${spin===playRead}">${spin}</button>`).join('')}</div>`;
+  if(phase==='predict') {
+    selected=botAction(v,()=>.5,'early').pos;
+    stage.innerHTML=`<p class="turn-label">${name(game.actor)} · 对手出球</p><h2>抢位置，还是再看一拍？</h2><p class="ball-cue">${v.ball.hint}</p>
+    <div class="action-deck" id="prepare-actions">
+    <button class="move-action" data-prepare="正手"><strong>抢正手</strong><span>提前占位，准备正手接球</span></button>
+    <button class="move-action" data-prepare="反手"><strong>抢反手</strong><span>提前占位，准备反手接球</span></button>
+    <button class="move-action" data-prepare="wait"><strong>再看一拍</strong><span>留在原位，换取更清楚的线索</span></button></div>
+    <p id="movement-note" class="muted">场上浅色人影是建议站位，可以先点格子改变。</p>
+    <details><summary>我想改判旋转</summary>${spinChips()}</details>${own}`;
+    stage.querySelectorAll('[data-spin]').forEach(b=>b.onclick=()=>{playRead=b.dataset.spin;stage.querySelectorAll('[data-spin]').forEach(x=>x.setAttribute('aria-pressed',x===b));});
+    stage.querySelectorAll('[data-prepare]').forEach(b=>b.onclick=()=>{
+      const waiting=b.dataset.prepare==='wait';
+      submit({pos:waiting?v.own.pos:selected,wait:waiting,guess:playRead,hand:waiting?playHand:b.dataset.prepare});
+    });
+    wireCourt(p=>{selected=p;manualPosition=true;$('movement-note').textContent='已改好站位，点一个动作就行动。';});return;
+  }
+  if(['adjust','shot'].includes(phase)) {
+    const serve=!v.ball,adjusting=phase==='adjust';
+    stage.innerHTML=`<p class="turn-label">${name(game.actor)} · ${serve?'你的发球':'轮到你'}</p><h2>选一招，点球台出手</h2>
+    ${serve?'<p class="ball-cue">用发球为下一板做铺垫</p>':`<p class="ball-cue">${v.ball.length}球 · ${v.ball.height==='高'?'冒高机会':'低球'} · 线索偏${v.ball.hintSpin}${v.ball.side?'带侧旋':''}</p>`}
+    <div class="action-deck" id="main-actions"></div>
+    <details id="more-actions"><summary>更多接法</summary><div class="action-deck" id="extra-actions"></div></details>
+    <p class="fire-hint" id="fire-hint" aria-live="polite"></p>
+    ${serve?'':`<details><summary>改用另一面 / 改判旋转</summary><div class="chips" aria-label="用手">${['正手','反手'].map(h=>`<button data-hand="${h}" aria-pressed="${h===playHand}">${h}</button>`).join('')}</div>${spinChips()}</details>`}
+    <details><summary>看判定与还原</summary><p id="odds"></p><p id="output"></p><div id="reasons" class="muted"></div><button id="recover-action" aria-pressed="true">击球后还原一步：开</button></details>${own}`;
+    const draft=(pos=selected,hand=playHand)=>({...v,own:{...v.own,pos},receive:serve?null:{...v.receive,hand,read:playRead}});
+    const choices=()=>{
+      if(serve)return Object.keys(SERVES).map(key=>({key,plan:null,available:true}));
+      const basis={...v,receive:{...v.receive,read:playRead}};
+      return Object.keys(TECH).map(key=>{
+        const plan=receivePlan(basis,key,playHand);
+        if(!plan)return {key,available:false,reason:'来不及切换击球面'};
+        const option=techniqueOptions(draft(plan.pos,plan.hand)).find(t=>t.key===key);
+        return {...option,plan};
+      });
+    };
+    const badge=e=>e.chance===0?'够不到':e.chance>=90?'较稳':e.chance>=75?'有风险':'很冒险';
+    const chooseTech=key=>{
+      const item=choices().find(t=>t.key===key&&t.available);if(!item)return;
+      playTech=key;manualPosition=false;
+      if(item.plan){playHand=item.plan.hand;selected={...item.plan.pos};}
+      target.y=aimRows(key)[0];refresh();
+    };
+    const refresh=()=>{
+      const all=choices(),order=serve?['短下旋','短不转','急长上旋','侧下短球']:actionOrder(draft());
+      const available=all.filter(t=>t.available),main=order.map(key=>available.find(t=>t.key===key)).filter(Boolean).slice(0,4);
+      const active=available.find(t=>t.key===playTech);if(active&&!main.some(t=>t.key===playTech)){if(main.length===4)main.pop();main.push(active);}
+      const extra=all.filter(t=>!main.some(m=>m.key===t.key));
+      const cards=items=>items.map(t=>{
+        const profile=serve?SERVES[t.key]:TECH[t.key];
+        const e=serve?shotPreview(v,t.key):t.plan?shotPreview(draft(t.key===playTech?selected:t.plan.pos,t.key===playTech?playHand:t.plan.hand),t.key):null;
+        const goal=({'摆短':'控短，限制起板','劈长':'送深下旋，调动对手','正手挑打':'台内抢先上手','反手拧拉':'台内拧出侧上旋','攻球':'主动快打','高吊拉起':'拉起下旋，转入进攻','前冲弧圈':'加速，压缩时间','挡球':'借力防守','快带':'迎前抢快','削球':'退台，改变旋转','扣杀':'抓住高球机会','救球':'先把球救回来'})[t.key]||(profile.length==='短'?'控短，试探接发':'突袭长球');
+        return `<button class="stroke-action" data-tech="${t.key}" ${t.available?'':'disabled'} aria-pressed="${playTech===t.key}"><strong>${t.key}</strong><span>${t.available?goal:t.reason}</span>${t.available?`<small>${serve?'发球':t.plan.hand} · ${badge(e)}</small>`:''}</button>`;
+      }).join('');
+      $('main-actions').innerHTML=cards(main);$('extra-actions').innerHTML=cards(extra);$('more-actions').hidden=!extra.length;
+      stage.querySelectorAll('[data-tech]').forEach(b=>b.onclick=()=>{chooseTech(b.dataset.tech);stage.querySelector(`[data-tech="${b.dataset.tech}"]`)?.focus({preventScroll:true});});
+      stage.querySelectorAll('[data-hand]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.hand===playHand));
+      stage.querySelectorAll('[data-spin]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.spin===playRead));
+      const profile=serve?SERVES[playTech]:TECH[playTech],e=shotPreview(draft(),playTech,target);
+      $('fire-hint').textContent=e.chance===0?'这个站位够不到球。可以换站位、换一招；无路可救时点球台结束本分。':`${playTech}已准备 · 点对方半台任意落点就击球${manualPosition?'（使用你的站位）':'（就位已预览）'}`;
+      showOdds(e,serve);
+      $('output').textContent=`回球：${profile.length} / ${profile.spin}${profile.side?'带侧旋':''} / 速度 ${profile.speed} / 旋转 ${profile.strength}`;
+      $('reasons').textContent=e.reasons.join('；');drawCourt();
+    };
+    const resetPlan=()=>{
+      const opts=choices(),compatible=t=>t.available&&(!TECH[t.key].hand||TECH[t.key].hand===playHand),pick=opts.find(t=>t.key===playTech&&compatible(t))||opts.find(compatible)||opts.find(t=>t.available);
+      chooseTech(pick.key);
+    };
+    stage.querySelectorAll('[data-hand]').forEach(b=>b.onclick=()=>{playHand=b.dataset.hand;resetPlan();});
+    stage.querySelectorAll('[data-spin]').forEach(b=>b.onclick=()=>{playRead=b.dataset.spin;resetPlan();});
+    $('recover-action').onclick=()=>{recover=!recover;$('recover-action').setAttribute('aria-pressed',recover);$('recover-action').textContent=`击球后还原一步：${recover?'开':'关'}`;};
+    const opts=choices(),preferred=serve?'短下旋':actionOrder(draft()).find(key=>opts.some(t=>t.key===key&&t.available));
+    chooseTech(preferred||opts.find(t=>t.available).key);
+    wireCourt((p,kind)=>{
+      if(kind==='position'){selected=p;manualPosition=true;refresh();return;}
+      target=p;
+      submit({...(adjusting?{action:'return',pos:selected,hand:playHand,guess:playRead}:{}),target,technique:playTech,recover});
+    });return;
+  }
+
+}
+allocationScreen();
+</script>
+</html>

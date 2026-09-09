@@ -1,0 +1,95 @@
+from pathlib import Path
+import json,csv,os
+ROOT=Path(__file__).resolve().parent
+x=json.loads((ROOT/'results.json').read_text()); rows=x['profiles']
+n=sum(r['test_count'] for r in rows)
+def means(key):
+ return tuple(sum(r[k][key]*r['test_count'] for r in rows)/n for k in ['baseline_test','fitted_test'])
+v0,v1=means('velocity_mae_m_s');w0,w1=means('spin_mae_rps')
+inverted=[r for r in rows if r['id'] in [1,2,3,4,9]]
+ni=sum(r['test_count'] for r in inverted)
+iv0,iv1=[sum(r[k]['velocity_mae_m_s']*r['test_count'] for r in inverted)/ni for k in ['baseline_test','fitted_test']]
+iw0,iw1=[sum(r[k]['spin_mae_rps']*r['test_count'] for r in inverted)/ni for k in ['baseline_test','fitted_test']]
+text=f'''# 胶皮参数校准报告 · 2026-09-09
+
+本轮使用公开球拍碰撞数据，对当前瞬时冲量模型作器材级常数拟合；不等同于真实胶皮内部结构的完整仿真。
+
+## 反胶：主要结果
+
+主要关注 R01、R02、R03、R04、R09 五种反胶球拍配置。它们由两款反胶配合不同底板构成，不是五款独立胶皮。使用 3,304 条训练样本和 {ni} 条独立测试样本。
+
+| 指标 | 原默认参数 | 反胶拟合后 | 下降 |
+|---|---:|---:|---:|
+| 平面速度平均矢量误差 | {iv0:.3f} m/s | {iv1:.3f} m/s | {(1-iv1/iv0)*100:.1f}% |
+| 主旋转轴平均绝对误差 | {iw0:.3f} rps | {iw1:.3f} rps | {(1-iw1/iw0)*100:.1f}% |
+
+反胶的 e 约 0.678–0.750、等效 μ 约 0.584–0.630、β 约 0.645–0.696。范围描述这五种配置的拟合，不是所有反胶的通用参数。优先进一步验证反胶在法向速度、滑动速度分段上的残差，以及接发场景下的有效覆盖。
+
+## 全器材独立测试结果（补充）
+
+固定训练集 6,490 条、测试集 {n:,} 条。按测试样本数加权：
+
+| 指标 | 原默认 e=0.8、μ=0.8、β=0.15 | 拟合后 | 下降 |
+|---|---:|---:|---:|
+| 平面出球速度平均矢量误差 | {v0:.3f} m/s | {v1:.3f} m/s | {(1-v1/v0)*100:.1f}% |
+| 主旋转轴平均绝对误差 | {w0:.3f} rps | {w1:.3f} rps | {(1-w1/w0)*100:.1f}% |
+
+两项均采用作者基准的测量维度：速度 x/z，旋转 y。不是完整三维误差，也不是落点误差或接发上台率。所有 1,623 个测试样本已由实际 C# BallPhysics.Contact 重放，核对与 NumPy 预测一致，并检查静止球拍不增加球的总动能。
+
+## 每组器材
+
+器材编号及底板、海绵厚度见 [作者原始说明](source/README.md)。
+
+| ID | e | 等效 μ | β | 测试数 | 速度误差：原→新 m/s | 旋转误差：原→新 rps |
+|---|---:|---:|---:|---:|---:|---:|
+'''
+for r in rows:
+ text+=f"| R{r['id']:02d} | {r['e']:.4f} | {r['mu']:.4f} | {r['beta']:.4f} | {r['test_count']} | {r['baseline_test']['velocity_mae_m_s']:.3f} → {r['fitted_test']['velocity_mae_m_s']:.3f} | {r['baseline_test']['spin_mae_rps']:.3f} → {r['fitted_test']['spin_mae_rps']:.3f} |\n"
+text+='''
+## 长胶与切向恢复的口径
+
+原实现仅允许 β∈[0,1]，不能直接表达很弱的切向响应。本轮将 β 的允许范围扩到 [-1,1]，同样的范围用于全部器材，并仅重新使用训练数据拟合。
+
+- β=-1：切向冲量为零，碰撞保留世界坐标下的角速度；法向回弹仍存在。回球方向反转时，上/下旋名称可转换。
+- -1<β<0：在未触及库仑上限时，触点继续沿原方向滑动，但滑动速度减小。
+- β=0：未受摩擦上限限制时，触点切向相对速度被消除。
+- β>0：允许切向弹性回弹。
+
+这只是等效响应系数，不是颗粒弯曲刚度。R05（长胶 1.2 mm）与 R06（长胶 OX）最终 β 约 -0.077、-0.250，未被设成“角速度永远不变”。颗粒、海绵与底板仍可能改变旋转。
+
+R05/R06 在训练数据中没有激活滑动冲量上限，所以 μ 无法唯一识别。表中 μ 只是满足这批样本的有效值，不是独立摩擦测量；不要把它外推为长胶普遍的摩擦系数。`results-beta-nonnegative.json` 保存了旧范围的诊断结果；范围修正依据物理边界和训练拟合触界现象，不是使用测试集挑选最优参数。
+
+## 数据、坐标与拟合
+
+- 来源：https://github.com/gossardt/tt_rackets ，提交 `159c6f040dd7832570b537b3b5fd00a97fc28c15`。论文为 2026 年预印本：https://arxiv.org/abs/2604.11349 。保留原 MIT License。
+- 本仓库保存 train/test CSV、坐标/公式参考代码及 SHA256（`results.json`）。未执行作者训练代码，也未使用作者预拟合系数。
+- 作者的 `preprocess_data` 直接读取 CSV 的 v_in/out、spin_before/after；不再额外按 racket_angle 旋转。使用拍面法线 +Z、入射速度 vz<0、接触臂 (0,0,-R)。线速度 m/s，角速度 rad/s，报告转速再除以 2π。
+- e 由训练集法向速度最小二乘拟合并限制到 [0,1]。μ、β 用固定四级网格搜索，范围 μ∈[0,1.5]、β∈[-1,1]。
+- 目标：平均 x/z 速度误差平方，加 (R×y 轴角速度误差)²；把旋转误差转换为球面速度尺度。无测试集调参。生产 C# 模型与拟合函数保持相同冲量公式。
+- 参考数据是固定球拍、主要平面运动，速度和旋转有有限覆盖；三维各向同性与运动球拍的推广是模型假设，尚未在独立三维实验中验证。不能据此宣布所有实战球路误差下降 76%/79%。
+- 静止被动表面的能量约束继续成立；负 β 并非负摩擦。空气、球台参数及默认胶皮初值没有被这些拟合数据悄悄改写。
+
+## 使用
+
+接发研究 → 设置接法 → 胶皮参数 → 公开数据标定。左右切换器材编号，点击“应用这组标定参数”。同一个选择器也接入了单板、挥拍发球及发球触球示例的材料设置。
+
+应用后重新计算；原来的统计需要重新测试。手动更改任一系数后，导出将不再声称匹配标定器材。导出中的 rubberCalibration 字段记录匹配的配置 ID；器材来源与误差保存在本报告。
+
+## 复现
+
+需要 Python 3 + NumPy（仅校准阶段，游戏无需 Python），以及 .NET 8：
+
+```sh
+python3 Calibration/rubber/calibrate.py
+python3 Calibration/rubber/generate_catalog.py
+python3 Calibration/rubber/report.py
+sh scripts/check.sh
+```
+
+`calibrate.py` 只从 source/data/train 拟合；source/data/test 仅用于报告。`generate_catalog.py` 生成只读 C# 参数目录和逐条预测，检查程序重新执行实际 C# 碰撞公式验证。
+'''
+(ROOT/'REPORT.md').write_text(text)
+with (ROOT/'summary.csv').open('w') as f:
+ writer=csv.writer(f);writer.writerow(['id','e','mu','beta','test_count','old_v_error_m_s','new_v_error_m_s','old_spin_error_rps','new_spin_error_rps'])
+ for r in rows:writer.writerow([r['id'],r['e'],r['mu'],r['beta'],r['test_count'],r['baseline_test']['velocity_mae_m_s'],r['fitted_test']['velocity_mae_m_s'],r['baseline_test']['spin_mae_rps'],r['fitted_test']['spin_mae_rps']])
+print('Report and CSV written')

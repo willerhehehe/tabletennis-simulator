@@ -1,0 +1,12 @@
+{
+  "source_commit": "159c6f040dd7832570b537b3b5fd00a97fc28c15",
+  "train_only_model_selection": true,
+  "files": {
+    "calibrate.py": "02d5c3728286688145ed64ab9dee7982759843b63bc3ecb53e281dff0d463555",
+    "fit_response.py": "9a5d8fe0ce56023ecd498e094eaf02d5f96331a56820d8ffc5cb55aa3d80f82c",
+    "response_report.py": "27965d792a5b3adbfd780cbb387bf4a05e7e3389f63539fe08483b28a56b3b0e",
+    "generate_response.py": "a3acd51a156599db5896a82ddfd8defec670ff683f094ebcdaf63c6710cdd2de",
+    "response-results.json": "0627715da5d4112add8811d8d597a7182fc5d367a2da441724874cccd28f49d4",
+    "response-test-predictions.csv": "4e3c6e512292380ee7321dcc403bab827adb8e920fecd4bf49cf5494fb81681b"
+  }
+}
