@@ -28,10 +28,10 @@ namespace TableTennis
 
         void DrawSpinControls()
         {
-            GUILayout.Label(mode == 1 ? "来球旋转 · 沿来球方向看" : "旋转 · 从发球者方向看", section);
+            GUILayout.Label(mode == 1 ? L.T("来球旋转 · 沿来球方向看") : L.T("旋转 · 从发球者方向看"), section);
             V3 c = BallSpin.Components(WorldSpinRps, SpinTravel);
             int kind = BallSpin.Kind(c);
-            int chosen = GUILayout.SelectionGrid(kind == 6 ? -1 : kind, SpinNames, 3);
+            int chosen = GUILayout.SelectionGrid(kind == 6 ? -1 : kind, L.All(SpinNames), 3);
             float strength = (float)c.Length;
             float share = Math.Abs(c.X) + Math.Abs(c.Y) > 0.01 ? (float)(Math.Abs(c.Y) / (Math.Abs(c.X) + Math.Abs(c.Y))) * 100 : 50;
             int sign = c.Y < 0 ? -1 : 1;
@@ -44,26 +44,26 @@ namespace TableTennis
             }
             if (kind > 0 && kind < 6)
             {
-                bool change = Slider("旋转强度", ref strength, 0, 260, "rps");
+                bool change = Slider(L.T("旋转强度"), ref strength, 0, 260, "rps");
                 if (kind >= 3)
                 {
-                    GUILayout.Label("从发球者看：侧旋使球向哪边弯", small);
-                    int side = GUILayout.Toolbar(sign < 0 ? 0 : 1, new[] { "向左弯", "向右弯" });
+                    GUILayout.Label(L.T("从发球者看：侧旋使球向哪边弯"), small);
+                    int side = GUILayout.Toolbar(sign < 0 ? 0 : 1, new[] { L.T("向左弯"), L.T("向右弯") });
                     if (side != (sign < 0 ? 0 : 1)) { sign = side == 0 ? -1 : 1; change = true; }
                 }
-                if (kind >= 4) change |= Slider("侧旋比重", ref share, 0, 100, "%");
+                if (kind >= 4) change |= Slider(L.T("侧旋比重"), ref share, 0, 100, "%");
                 if (change)
                 { SetWorldSpin(BallSpin.Preset(kind, strength, share / 100, sign, SpinTravel)); parametersChanged = true; }
-                GUILayout.Label(kind == 1 || kind == 4 ? "上表面向前转；侧视更容易看清。" : kind == 2 || kind == 5 ? "上表面向发球者回转；侧视更容易看清。" : "绕竖直方向旋转；俯视更容易看清。", small);
+                GUILayout.Label(kind == 1 || kind == 4 ? L.T("上表面向前转；侧视更容易看清。") : kind == 2 || kind == 5 ? L.T("上表面向发球者回转；侧视更容易看清。") : L.T("绕竖直方向旋转；俯视更容易看清。"), small);
             }
-            else GUILayout.Label(kind == 0 ? "没有自转；选择一种旋转即可开始调节。" : "当前含纵向旋转；选基础类型会清除纵向分量。", small);
-            if (mode != 1 && GUILayout.Button("反算触球示例", quietButton)) OpenServeContact();
-            if (Fold("高级 · 世界坐标三轴旋转", ref serveSpinOpen))
+            else GUILayout.Label(kind == 0 ? L.T("没有自转；选择一种旋转即可开始调节。") : L.T("当前含纵向旋转；选基础类型会清除纵向分量。"), small);
+            if (mode != 1 && GUILayout.Button(L.T("反算触球示例"), quietButton)) OpenServeContact();
+            if (Fold(L.T("高级 · 世界坐标三轴旋转"), ref serveSpinOpen))
             {
-                Slider("角速度 X", ref spinX, -150, 150, "rps");
-                Slider("角速度 Y", ref spinY, -150, 150, "rps");
-                Slider("角速度 Z", ref spinZ, -150, 150, "rps");
-                GUILayout.Label("这是角速度轴分量，不是球面移动方向。", small);
+                Slider(L.T("角速度 X"), ref spinX, -150, 150, "rps");
+                Slider(L.T("角速度 Y"), ref spinY, -150, 150, "rps");
+                Slider(L.T("角速度 Z"), ref spinZ, -150, 150, "rps");
+                GUILayout.Label(L.T("这是角速度轴分量，不是球面移动方向。"), small);
             }
         }
 
@@ -72,7 +72,7 @@ namespace TableTennis
             servePlaying = false; serveTime = 0; serveContact = null; serveContactError = "";
             if (mode == 1) return;
             try { serveContact = ServeContact.Solve(ServeTarget, stroke.Restitution, stroke.Friction, stroke.Tangent, stroke.ResponseId); }
-            catch (ArgumentException e) { serveContactError = e.Message; }
+            catch (ArgumentException e) { serveContactError = L.T(e.Message); }
         }
 
         void OpenServeContact()
@@ -143,7 +143,7 @@ namespace TableTennis
         void BuildServeVisuals()
         {
             if (serveRacket != null) return;
-            serveRacket = CreateRacket("发球拍 · 可复现触球示例");
+            serveRacket = CreateRacket(L.T("发球拍 · 可复现触球示例"));
             foreach (var r in serveRacket.GetComponentsInChildren<Renderer>())
                 if (r.name != "拍柄")
                 {
@@ -235,10 +235,10 @@ namespace TableTennis
         {
             if (serveContact == null) return "";
             V3 arm = -serveContact.Normal, right = V3.Cross(new V3(0, 1, 0), BallSpin.Forward(ServeTarget.Velocity));
-            string vertical = arm.Y > 0.15 ? "上部" : arm.Y < -0.15 ? "下部" : "中部";
+            string vertical = arm.Y > 0.15 ? L.T("上部") : arm.Y < -0.15 ? L.T("下部") : L.T("中部");
             double side = V3.Dot(arm, right);
             double depth = V3.Dot(arm, BallSpin.Forward(ServeTarget.Velocity));
-            return "球的" + (depth < -0.15 ? "后" : depth > 0.15 ? "前" : "") + vertical + (side > 0.15 ? "，偏右" : side < -0.15 ? "，偏左" : "");
+            return L.T("球的") + (depth < -0.15 ? L.T("后") : depth > 0.15 ? L.T("前") : "") + vertical + (side > 0.15 ? L.T("，偏右") : side < -0.15 ? L.T("，偏左") : "");
         }
 
         void DrawServeContactPanel()
@@ -246,57 +246,57 @@ namespace TableTennis
             float x = CanvasRight + 18, width = ReceivePanelWidth - 36;
             DrawRect(new Rect(CanvasRight, 0, ReceivePanelWidth, UIHeight), new Color(0.075f, 0.105f, 0.13f));
             GUILayout.BeginArea(new Rect(x, SpinPanelHeight + 12, width, Mathf.Max(30, UIHeight - SpinPanelHeight - 82)));
-            GUILayout.Label("发球触球示例", heading);
-            GUILayout.Label(serveContact != null ? "一组可复现的局部动作，不是唯一解。" : "目标球路保留；当前仅显示位置参照。", small);
+            GUILayout.Label(L.T("发球触球示例"), heading);
+            GUILayout.Label(serveContact != null ? L.T("一组可复现的局部动作，不是唯一解。") : L.T("目标球路保留；当前仅显示位置参照。"), small);
             serveScroll = GUILayout.BeginScrollView(serveScroll);
             if (serveContact == null)
             {
-                GUILayout.Label("尚未找到匹配动作", section);
+                GUILayout.Label(L.T("尚未找到匹配动作"), section);
                 GUILayout.Label(serveContactError, small);
-                GUILayout.Label("灰色球拍只标示离拍位置，不是已验证的拍型。挥拍箭头和慢放暂不提供。目标球速、旋转与球路保持不变。", small);
+                GUILayout.Label(L.T("灰色球拍只标示离拍位置，不是已验证的拍型。挥拍箭头和慢放暂不提供。目标球速、旋转与球路保持不变。"), small);
             }
             else
             {
-                GUILayout.Label("摩擦哪里", section);
+                GUILayout.Label(L.T("摩擦哪里"), section);
                 GUILayout.Label(ServePointDescription(), heading);
-                GUILayout.Label("沿出球方向看；橙点标出实际接触位置。", small);
-                GUILayout.Label("球拍怎么动", section);
+                GUILayout.Label(L.T("沿出球方向看；橙点标出实际接触位置。"), small);
+                GUILayout.Label(L.T("球拍怎么动"), section);
                 V3 v = serveContact.RacketVelocity, right = V3.Cross(new V3(0, 1, 0), BallSpin.Forward(ServeTarget.Velocity));
                 double pitch = Math.Asin(serveContact.Normal.Y) * 180 / Math.PI;
                 double yaw = Math.Atan2(V3.Dot(serveContact.Normal, right), V3.Dot(serveContact.Normal, BallSpin.Forward(ServeTarget.Velocity))) * 180 / Math.PI;
-                GUILayout.Label($"拍面开合 {pitch:+0.0;-0.0;0.0}° · 侧偏 {yaw:+0.0;-0.0;0.0}°", small);
-                GUILayout.Label($"迎前 {V3.Dot(v, BallSpin.Forward(ServeTarget.Velocity)):+0.00;-0.00;0.00} m/s\n向上 {v.Y:+0.00;-0.00;0.00} m/s\n向右 {V3.Dot(v, right):+0.00;-0.00;0.00} m/s", small);
-                GUILayout.Label("负数分别表示后撤、向下、向左。\n黄箭头：触点速度；绿箭头：相对球面摩擦；蓝箭头：拍面朝向。", small);
+                GUILayout.Label(L.F("拍面开合 {0:+0.0;-0.0;0.0}° · 侧偏 {1:+0.0;-0.0;0.0}°", pitch, yaw), small);
+                GUILayout.Label(L.F("迎前 {0:+0.00;-0.00;0.00} m/s\n向上 {1:+0.00;-0.00;0.00} m/s\n向右 {2:+0.00;-0.00;0.00} m/s", V3.Dot(v, BallSpin.Forward(ServeTarget.Velocity)), v.Y, V3.Dot(v, right)), small);
+                GUILayout.Label(L.T("负数分别表示后撤、向下、向左。\n黄箭头：触点速度；绿箭头：相对球面摩擦；蓝箭头：拍面朝向。"), small);
                 if (RacketGeometry.MayTouchTable(serveContact.Before.Position, serveContact.Normal, serveContact.RacketVelocity * 2, -70))
-                    GUILayout.Label("这段局部运动可能碰台；请提高离拍位置或移到台后。", small);
-                GUILayout.Label("示例的抛球假设", section);
+                    GUILayout.Label(L.T("这段局部运动可能碰台；请提高离拍位置或移到台后。"), small);
+                GUILayout.Label(L.T("示例的抛球假设"), section);
                 double vy = serveContact.Before.Velocity.Y;
-                GUILayout.Label($"无旋转、无水平速度，触球前竖直{(vy < 0 ? "下落" : "上升")} {Math.Abs(vy):0.00} m/s。", small);
-                GUILayout.Label($"自动在 ±{ServeContact.MaxTossVerticalSpeed:0} m/s 内选择可复现的抛球示例；目标球速、转速与胶皮参数未改变。未模拟完整抛球和人体动作。", small);
-                GUILayout.Label($"重算出球 {serveContact.After.Velocity.Length:0.00} m/s\n重算旋转 {serveContact.After.Spin.Length / BallPhysics.Rps:0.0} rps", section);
+                GUILayout.Label(L.F("无旋转、无水平速度，触球前竖直{0} {1:0.00} m/s。", (vy < 0 ? L.T("下落") : L.T("上升")), Math.Abs(vy)), small);
+                GUILayout.Label(L.F("自动在 ±{0:0} m/s 内选择可复现的抛球示例；目标球速、转速与胶皮参数未改变。未模拟完整抛球和人体动作。", ServeContact.MaxTossVerticalSpeed), small);
+                GUILayout.Label(L.F("重算出球 {0:0.00} m/s\n重算旋转 {1:0.0} rps", serveContact.After.Velocity.Length, serveContact.After.Spin.Length / BallPhysics.Rps), section);
             }
             GUILayout.EndScrollView(); GUILayout.EndArea();
-            if (GUI.Button(new Rect(x, UIHeight - 60, width, 42), "返回球路与接发研究", primaryButton)) SetCamera(cameraBeforeServe);
+            if (GUI.Button(new Rect(x, UIHeight - 60, width, 42), L.T("返回球路与接发研究"), primaryButton)) SetCamera(cameraBeforeServe);
         }
 
         void DrawServeContactCanvas(float left, float width)
         {
             DrawRect(new Rect(panelWidth, ViewTop, CanvasRight - panelWidth, 58), new Color(0.055f, 0.08f, 0.10f));
-            string legend = !showServeTrajectory ? "轨迹已隐藏，可在下方勾选同时显示" :
-                mode == 2 ? (flight != null ? "橙线：发球 · 青线：接回球 · 圆点：碰撞位置" : "橙线：发球（暂无有效接回球）") : "青线：出球轨迹 · 圆点：碰撞位置";
-            if (showServeTrajectory && referenceFlight != null) legend += " · 紫线：参照";
+            string legend = !showServeTrajectory ? L.T("轨迹已隐藏，可在下方勾选同时显示") :
+                mode == 2 ? (flight != null ? L.T("橙线：发球 · 青线：接回球 · 圆点：碰撞位置") : L.T("橙线：发球（暂无有效接回球）")) : L.T("青线：出球轨迹 · 圆点：碰撞位置");
+            if (showServeTrajectory && referenceFlight != null) legend += L.T(" · 紫线：参照");
             GUI.Label(new Rect(left, ViewTop + 8, width, 24), legend, small);
-            GUI.Label(new Rect(left, ViewTop + 30, width, 24), serveContact != null ? "已匹配当前球速与旋转 · 橙点：接触位置" : "未匹配动作：灰色球拍仅示意离拍位置，未验证拍型与挥拍", small);
+            GUI.Label(new Rect(left, ViewTop + 30, width, 24), serveContact != null ? L.T("已匹配当前球速与旋转 · 橙点：接触位置") : L.T("未匹配动作：灰色球拍仅示意离拍位置，未验证拍型与挥拍"), small);
             if (serveRacket != null && view.orthographicSize > 0.6f)
-                WorldLabel(serveRacket.position, serveContact != null ? "发球球拍" : "位置参考", 20);
+                WorldLabel(serveRacket.position, serveContact != null ? L.T("发球球拍") : L.T("位置参考"), 20);
             GUILayout.BeginArea(new Rect(left, UIHeight - FooterHeight + 10, width, FooterHeight - 16));
             GUILayout.BeginHorizontal();
             GUI.enabled = serveContact != null;
-            if (GUILayout.Button(servePlaying ? "暂停" : "慢放触球", primaryButton, GUILayout.Width(100)))
+            if (GUILayout.Button(servePlaying ? L.T("暂停") : L.T("慢放触球"), primaryButton, GUILayout.Width(100)))
             { if (servePlaying) servePlaying = false; else { serveTime = -0.02f; servePlaying = true; } }
-            if (GUILayout.Button("停在触球", GUILayout.Width(88))) { serveTime = 0; servePlaying = false; }
+            if (GUILayout.Button(L.T("停在触球"), GUILayout.Width(88))) { serveTime = 0; servePlaying = false; }
             GUI.enabled = true;
-            if (GUILayout.Button(new GUIContent("看完整球路", "同时显示球拍、当前轨迹、碰撞落点和已固定的参照，并适配视角。"), GUILayout.Width(100))) FitServeTrajectory();
+            if (GUILayout.Button(new GUIContent(L.T("看完整球路"), L.T("同时显示球拍、当前轨迹、碰撞落点和已固定的参照，并适配视角。")), GUILayout.Width(100))) FitServeTrajectory();
             GUI.enabled = serveContact != null;
             float t = GUILayout.HorizontalSlider(serveTime, -0.02f, 0.02f);
             if (t != serveTime) { serveTime = t; servePlaying = false; }
@@ -304,12 +304,12 @@ namespace TableTennis
             GUILayout.EndHorizontal();
             GUI.enabled = true;
             GUILayout.BeginHorizontal();
-            showServeTrajectory = GUILayout.Toggle(showServeTrajectory, "同时显示轨迹与落点");
+            showServeTrajectory = GUILayout.Toggle(showServeTrajectory, L.T("同时显示轨迹与落点"));
             bool presetZoom = serveZoom && !cameraAdjusted;
-            bool zoom = GUILayout.Toggle(presetZoom, "放大球面接触区域");
+            bool zoom = GUILayout.Toggle(presetZoom, L.T("放大球面接触区域"));
             if (zoom != presetZoom) { serveZoom = zoom; ResetCameraView(); }
             GUILayout.EndHorizontal();
-            GUILayout.Label("轨迹为预计算结果；慢放仅触球前后各 20 ms，1/40 速度。", small);
+            GUILayout.Label(L.T("轨迹为预计算结果；慢放仅触球前后各 20 ms，1/40 速度。"), small);
             GUILayout.EndArea();
         }
 

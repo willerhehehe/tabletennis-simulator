@@ -66,7 +66,7 @@ namespace TableTennis
             if (!string.IsNullOrEmpty(path))
             {
                 try { LoadImage(path); }
-                catch (Exception) { imageStatus = "上次标志文件无法读取，可重新导入。"; }
+                catch (Exception) { imageStatus = L.T("上次标志文件无法读取，可重新导入。"); }
             }
             int skin = PlayerPrefs.GetInt(Preference + "Skin", 0);
             Skin = skin >= 0 && skin <= (imported == null ? 2 : 3) ? (SpinSkin)skin : SpinSkin.BlackDots;
@@ -84,35 +84,35 @@ namespace TableTennis
 
         public void DrawControls(GUIStyle button, GUIStyle small, bool expanded = false)
         {
-            if (!expanded && GUILayout.Button((displaySettings ? "− " : "+ ") + "显示设置 · 视角 / 皮肤", button)) displaySettings = !displaySettings;
+            if (!expanded && GUILayout.Button((displaySettings ? "− " : "+ ") + L.T("显示设置 · 视角 / 皮肤"), button)) displaySettings = !displaySettings;
             if (expanded || displaySettings)
             {
-            FollowMainView = GUILayout.Toolbar(FollowMainView ? 0 : 1, new[] { "跟随主视角", "固定发球者" }) == 0;
-            int chosen = GUILayout.Toolbar((int)Skin, imported == null ? BasicSkins : ImageSkins);
+            FollowMainView = GUILayout.Toolbar(FollowMainView ? 0 : 1, new[] { L.T("跟随主视角"), L.T("固定发球者") }) == 0;
+            int chosen = GUILayout.Toolbar((int)Skin, L.All(imported == null ? BasicSkins : ImageSkins));
             if (chosen != (int)Skin) { Skin = (SpinSkin)chosen; Reset(); SaveSkin(); }
             GUILayout.BeginHorizontal();
 #if UNITY_EDITOR
-            if (GUILayout.Button("导入标志", button, GUILayout.Width(102)))
+            if (GUILayout.Button(L.T("导入标志"), button, GUILayout.Width(102)))
             {
-                string path = UnityEditor.EditorUtility.OpenFilePanelWithFilters("选择球面标志", "", new[] { "图片", "png,jpg,jpeg" });
+                string path = UnityEditor.EditorUtility.OpenFilePanelWithFilters(L.T("选择球面标志"), "", new[] { L.T("图片"), "png,jpg,jpeg" });
                 if (!string.IsNullOrEmpty(path))
                 {
                     try { LoadImage(path); PlayerPrefs.SetString(Preference + "Image", path); SaveSkin(); }
-                    catch (Exception e) { imageStatus = "导入失败：" + e.Message; }
+                    catch (Exception e) { imageStatus = L.T("导入失败：") + L.T(e.Message); }
                 }
             }
 #endif
-            bool arrows = GUILayout.Toggle(ShowArrows, "旋转轴与转向");
+            bool arrows = GUILayout.Toggle(ShowArrows, L.T("旋转轴与转向"));
             if (arrows != ShowArrows) { ShowArrows = arrows; dirty = true; }
             GUILayout.EndHorizontal();
             if (!string.IsNullOrEmpty(imageStatus)) GUILayout.Label(imageStatus, small);
             }
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button(Paused ? "播放示意" : "暂停示意", button)) Paused = !Paused;
+            if (GUILayout.Button(Paused ? L.T("播放示意") : L.T("暂停示意"), button)) Paused = !Paused;
             bool enabled = GUI.enabled; GUI.enabled = enabled && LocalSpin.Length > 0.001;
-            if (GUILayout.Button("单步 15°", button)) Step();
+            if (GUILayout.Button(L.T("单步 15°"), button)) Step();
             GUI.enabled = enabled;
-            if (GUILayout.Button(Slower ? "极慢" : "慢放", button)) Slower = !Slower;
+            if (GUILayout.Button(Slower ? L.T("极慢") : L.T("慢放"), button)) Slower = !Slower;
             GUILayout.EndHorizontal();
 
         }
@@ -120,12 +120,12 @@ namespace TableTennis
 
         public void LoadImage(string path)
         {
-            if (new FileInfo(path).Length > 16 * 1024 * 1024) throw new ArgumentException("图片请小于 16 MB。");
+            if (new FileInfo(path).Length > 16 * 1024 * 1024) throw new ArgumentException(L.T("图片请小于 16 MB。"));
             var texture = new Texture2D(2, 2);
             try
             {
                 if (!texture.LoadImage(File.ReadAllBytes(path)) || texture.width > 4096 || texture.height > 4096)
-                    throw new ArgumentException("请使用不超过 4096×4096 的 PNG/JPG。");
+                    throw new ArgumentException(L.T("请使用不超过 4096×4096 的 PNG/JPG。"));
                 float scale = Mathf.Min(1, 512f / Mathf.Max(texture.width, texture.height));
                 int width = Mathf.Max(1, Mathf.RoundToInt(texture.width * scale)), height = Mathf.Max(1, Mathf.RoundToInt(texture.height * scale));
                 var next = new Color32[width * height];
@@ -149,14 +149,14 @@ namespace TableTennis
             GUI.DrawTexture(iconOnly ? area : new Rect(area.x + 6, area.y + 7, compact ? 110 : 126, compact ? 110 : 126), sphere); GUI.color = previous;
             if (iconOnly) return;
             float labelX = compact ? 130 : 145;
-            if (!state.HasValue) GUI.Label(new Rect(area.x + labelX, area.y + 23, area.width - labelX, 85), "暂无有效\n球状态", text);
+            if (!state.HasValue) GUI.Label(new Rect(area.x + labelX, area.y + 23, area.width - labelX, 85), L.T("暂无有效\n球状态"), text);
             else
             {
-                GUI.Label(new Rect(area.x + labelX, area.y + 18, area.width - labelX, 30), rps < 0.001f ? "无旋转" : $"{rps:0.0} rps", text);
-                string hint = Skin == SpinSkin.BlackDots ? "红线：旋转轴\n绿箭头：球面转向" : Skin == SpinSkin.Image ? "标志贴在球面\n随球转动" : "条纹标记\n随球面转动";
+                GUI.Label(new Rect(area.x + labelX, area.y + 18, area.width - labelX, 30), rps < 0.001f ? L.T("无旋转") : $"{rps:0.0} rps", text);
+                string hint = Skin == SpinSkin.BlackDots ? L.T("红线：旋转轴\n绿箭头：球面转向") : Skin == SpinSkin.Image ? L.T("标志贴在球面\n随球转动") : L.T("条纹标记\n随球面转动");
                 GUI.Label(new Rect(area.x + labelX, area.y + 52, area.width - labelX, 72), hint, text);
             }
-            GUI.Label(new Rect(area.x, area.y + (compact ? 126 : 140), area.width, compact ? 30 : 45), compact ? (FollowMainView ? "跟随主视角 · 慢放示意" : "发球者 → 对方 · 慢放示意") : (FollowMainView ? "跟随主画面视角" : "固定视角：发球者 → 对方") + "\n实际 rps · 图中为慢放示意", text);
+            GUI.Label(new Rect(area.x, area.y + (compact ? 126 : 140), area.width, compact ? 30 : 45), compact ? (FollowMainView ? L.T("跟随主视角 · 慢放示意") : L.T("发球者 → 对方 · 慢放示意")) : (FollowMainView ? L.T("跟随主画面视角") : L.T("固定视角：发球者 → 对方")) + L.T("\n实际 rps · 图中为慢放示意"), text);
         }
 
         public Texture2D RenderFrame(Quaternion rotation, V3 spin, bool valid = true)

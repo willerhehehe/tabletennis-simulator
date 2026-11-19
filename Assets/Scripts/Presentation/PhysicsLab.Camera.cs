@@ -67,10 +67,10 @@ namespace TableTennis
             Rect bar = CameraBar;
             DrawRect(new Rect(bar.x - 4, bar.y - 2, bar.width + 8, bar.height + 4), new Color(0.055f, 0.08f, 0.10f, 0.94f));
             GUI.Label(new Rect(bar.x + 4, bar.y, Mathf.Max(0, bar.width - 150), bar.height),
-                mode == 3 ? "拖圆点改位置 · Shift 改高度 · 空白处调视角" : pickingReceivePoint ? "左键选点 · 右键平移 · 滚轮缩放" : CanOrbitCamera ? "左键旋转 · 右键/Shift平移 · 滚轮缩放" : "拖动平移 · 滚轮缩放", small);
-            if (GUI.Button(new Rect(bar.xMax - 140, bar.y, 32, bar.height), new GUIContent("−", "缩小视图"))) ZoomCamera(2);
-            if (GUI.Button(new Rect(bar.xMax - 104, bar.y, 32, bar.height), new GUIContent("+", "放大视图"))) ZoomCamera(-2);
-            if (GUI.Button(new Rect(bar.xMax - 68, bar.y, 68, bar.height), new GUIContent("复位", "恢复当前预设视角；画面中双击也可复位。"))) ResetCameraView();
+                mode == 3 ? L.T("拖圆点改位置 · Shift 改高度 · 空白处调视角") : pickingReceivePoint ? L.T("左键选点 · 右键平移 · 滚轮缩放") : CanOrbitCamera ? L.T("左键旋转 · 右键/Shift平移 · 滚轮缩放") : L.T("拖动平移 · 滚轮缩放"), small);
+            if (GUI.Button(new Rect(bar.xMax - 140, bar.y, 32, bar.height), new GUIContent("−", L.T("缩小视图")))) ZoomCamera(2);
+            if (GUI.Button(new Rect(bar.xMax - 104, bar.y, 32, bar.height), new GUIContent("+", L.T("放大视图")))) ZoomCamera(-2);
+            if (GUI.Button(new Rect(bar.xMax - 68, bar.y, 68, bar.height), new GUIContent(L.T("复位"), L.T("恢复当前预设视角；画面中双击也可复位。")))) ResetCameraView();
             HandleCameraInput();
         }
 

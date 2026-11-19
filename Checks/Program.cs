@@ -8,3 +8,5 @@ ModuleChecks.Run();
 RubberCalibrationChecks.Run();
 
 RubberResponseChecks.Run();
+
+LocalizationChecks.Run();

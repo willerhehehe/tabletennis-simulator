@@ -45,7 +45,7 @@ namespace TableTennis
             stroke = next; strokeContactHeight = preset.ContactHeight; strokeAutoContact = true;
             presetPanel.Select(preset); editField = ""; strokeCloseup = false;
             Recalculate(); SetCamera(cameraMode == 1 ? 1 : cameraMode == 2 ? 2 : 0);
-            notice = preset.Name + " · 已按当前胶皮匹配动作并验证球路";
+            notice = L.T(preset.Name) + L.T(" · 已按当前胶皮匹配动作并验证球路");
         }
 
         static void SetLineSamples(LineRenderer line, IList<BallState> samples)
@@ -69,7 +69,7 @@ namespace TableTennis
                     var contact = stroke.AlignContact(settings, strokeContactHeight);
                     V3 normal = stroke.Normal * (stroke.BackFace ? -1 : 1);
                     if (V3.Dot(contact.Velocity - stroke.Velocity, normal) >= -0.01)
-                        throw new ArgumentException("当前方向无法形成迎球撞击，请调整挥拍方向或拍面角度。");
+                        throw new ArgumentException(L.T("当前方向无法形成迎球撞击，请调整挥拍方向或拍面角度。"));
                 }
                 strokeResult = stroke.Simulate(settings);
                 serveContact = strokeResult.Contact;
@@ -96,7 +96,7 @@ namespace TableTennis
                 }
                 time = serveContact != null ? (float)serveContact.Before.Time + 0.000001f : 0;
             }
-            catch (ArgumentException e) { error = e.Message; }
+            catch (ArgumentException e) { error = L.T(e.Message); }
             FitCamera();
         }
 
@@ -201,9 +201,9 @@ namespace TableTennis
         {
             GUILayout.Label(label, section);
             double x = p.X, y = p.Y, z = p.Z;
-            SettingSlider(label + " · 左右", ref x, height ? -3 : -1.5f, height ? 3 : 1.5f, "m");
-            if (height) SettingSlider(label + " · 高度", ref y, 0.1f, 4, "m");
-            SettingSlider(label + " · 前后", ref z, height ? -4 : -3, height ? 4 : -0.5f, "m");
+            SettingSlider(label + L.T(" · 左右"), ref x, height ? -3 : -1.5f, height ? 3 : 1.5f, "m");
+            if (height) SettingSlider(label + L.T(" · 高度"), ref y, 0.1f, 4, "m");
+            SettingSlider(label + L.T(" · 前后"), ref z, height ? -4 : -3, height ? 4 : -0.5f, "m");
             p = new V3(x, y, z);
         }
 
@@ -221,11 +221,11 @@ namespace TableTennis
             parametersChanged = false; inputError = "";
             DrawRect(new Rect(0, 0, panelWidth, UIHeight), new Color(0.075f, 0.105f, 0.13f));
             GUILayout.BeginArea(new Rect(18, 16, panelWidth - 36, UIHeight - 32));
-            GUILayout.Label("挥拍发球", heading);
-            GUILayout.Label("落球 + 球拍动作 → 出球", small);
+            GUILayout.Label(L.T("挥拍发球"), heading);
+            GUILayout.Label(L.T("落球 + 球拍动作 → 出球"), small);
             GUILayout.Space(12);
-            GUILayout.Label("实验模式", small);
-            int selected = GUILayout.SelectionGrid(0, new[] { "挥拍发球", "出球模拟", "单板击球", "接发研究" }, 2);
+            GUILayout.Label(L.T("实验模式"), small);
+            int selected = GUILayout.SelectionGrid(0, new[] { L.T("挥拍发球"), L.T("出球模拟"), L.T("单板击球"), L.T("接发研究") }, 2);
             if (selected != 0)
             {
                 strokeCloseup = false;
@@ -235,7 +235,7 @@ namespace TableTennis
                 SetCamera(2); parametersChanged = true; editField = "";
             }
             GUILayout.Space(12);
-            int settingsTab = GUILayout.Toolbar(strokeSettingsTab, new[] { "发球预设", "动作参数" });
+            int settingsTab = GUILayout.Toolbar(strokeSettingsTab, new[] { L.T("发球预设"), L.T("动作参数") });
             if (settingsTab != strokeSettingsTab) { strokeSettingsTab = settingsTab; strokeScroll = Vector2.zero; }
             strokeScroll = GUILayout.BeginScrollView(strokeScroll);
             if (strokeSettingsTab == 0)
@@ -244,60 +244,60 @@ namespace TableTennis
             if (requestedPreset != null)
             {
                 try { LoadServePreset(requestedPreset); }
-                catch (ArgumentException e) { notice = "预设载入失败：" + e.Message; }
+                catch (ArgumentException e) { notice = L.T("预设载入失败：") + L.T(e.Message); }
             }
             }
             else
             {
-            GUILayout.Label("01  球从顶点下落", section);
+            GUILayout.Label(L.T("01  球从顶点下落"), section);
             double height = stroke.Apex.Y;
-            SettingSlider("顶点高度", ref height, 0.85f, 2.5f, "m");
+            SettingSlider(L.T("顶点高度"), ref height, 0.85f, 2.5f, "m");
             stroke.Apex = new V3(stroke.Apex.X, height, stroke.Apex.Z);
-            GUILayout.Label("从无旋、静止的抛球顶点开始计时。高度相对地面，台高 0.76 m。", small);
-            if (Fold("落球左右与前后位置", ref strokePositionOpen)) StrokeVector("落球", ref stroke.Apex, false);
-            GUILayout.Label("02  拍型与朝向", section);
-            SettingSlider("拍面与台面夹角", ref stroke.TableAngle, 0, 180, "°");
-            GUILayout.Label("0° 水平朝上 · 90° 竖直\n180° 水平朝下；角度改变真实拍型。", small);
-            SettingSlider("拍面朝向 · 左右", ref stroke.Yaw, -90, 90, "°");
-            SettingSlider("拍柄转角", ref stroke.Roll, -180, 180, "°");
-            GUILayout.Label("拍柄转角：绕拍面法线旋转，不改变拍面朝向。", small);
-            bool back = GUILayout.Toggle(stroke.BackFace, "翻面：以红面击球");
+            GUILayout.Label(L.T("从无旋、静止的抛球顶点开始计时。高度相对地面，台高 0.76 m。"), small);
+            if (Fold(L.T("落球左右与前后位置"), ref strokePositionOpen)) StrokeVector(L.T("落球"), ref stroke.Apex, false);
+            GUILayout.Label(L.T("02  拍型与朝向"), section);
+            SettingSlider(L.T("拍面与台面夹角"), ref stroke.TableAngle, 0, 180, "°");
+            GUILayout.Label(L.T("0° 水平朝上 · 90° 竖直\n180° 水平朝下；角度改变真实拍型。"), small);
+            SettingSlider(L.T("拍面朝向 · 左右"), ref stroke.Yaw, -90, 90, "°");
+            SettingSlider(L.T("拍柄转角"), ref stroke.Roll, -180, 180, "°");
+            GUILayout.Label(L.T("拍柄转角：绕拍面法线旋转，不改变拍面朝向。"), small);
+            bool back = GUILayout.Toggle(stroke.BackFace, L.T("翻面：以红面击球"));
             if (back != stroke.BackFace) { stroke.BackFace = back; parametersChanged = true; }
-            GUILayout.Label("正面黑，反面红；蓝箭头指向黑面。", small);
-            GUILayout.Label("03  直线挥拍", section);
-            SettingSlider("挥拍速度", ref stroke.Speed, 0, 25, "m/s");
-            GUILayout.Label("速度独立设置；改变路径长度只改变挥拍时长。", small);
+            GUILayout.Label(L.T("正面黑，反面红；蓝箭头指向黑面。"), small);
+            GUILayout.Label(L.T("03  直线挥拍"), section);
+            SettingSlider(L.T("挥拍速度"), ref stroke.Speed, 0, 25, "m/s");
+            GUILayout.Label(L.T("速度独立设置；改变路径长度只改变挥拍时长。"), small);
             if (strokeAutoContact)
             {
-                GUILayout.Label("自动对准触球已开启，位置与时机自动配合落球。", small);
-                SettingSlider("击球高度", ref strokeContactHeight, 0.8f, (float)Math.Max(0.8, stroke.Apex.Y - 0.03), "m");
+                GUILayout.Label(L.T("自动对准触球已开启，位置与时机自动配合落球。"), small);
+                SettingSlider(L.T("击球高度"), ref strokeContactHeight, 0.8f, (float)Math.Max(0.8, stroke.Apex.Y - 0.03), "m");
                 V3 pathDirection = (stroke.End - stroke.Start).Unit;
                 double upAngle = Math.Asin(pathDirection.Y) * 180 / Math.PI;
                 double sideAngle = Math.Atan2(pathDirection.X, pathDirection.Z) * 180 / Math.PI;
-                SettingSlider("挥拍向上角", ref upAngle, -90, 90, "°");
-                SettingSlider("挥拍左右角", ref sideAngle, -180, 180, "°");
+                SettingSlider(L.T("挥拍向上角"), ref upAngle, -90, 90, "°");
+                SettingSlider(L.T("挥拍左右角"), ref sideAngle, -180, 180, "°");
                 V3 directionVector = Direction(upAngle, sideAngle);
                 if ((directionVector - pathDirection).Length > 1e-6) stroke.End = stroke.Start + directionVector * stroke.PathLength;
             }
-            else SettingSlider("启动时刻", ref stroke.StartTime, -60, 1.5f, "s");
-            GUILayout.Label(stroke.Speed == 0 ? "速度为 0：球拍保持在路径中点。" : $"路径长度 {stroke.PathLength:0.000} m · 时长 {stroke.Duration:0.000} s", small);
-            GUILayout.Label($"向右 {stroke.Velocity.X:+0.00;-0.00;0} · 向上 {stroke.Velocity.Y:+0.00;-0.00;0} · 向前 {stroke.Velocity.Z:+0.00;-0.00;0} m/s", small);
-            if (stroke.StartTime < 0) GUILayout.Label("该路径在抛球顶点之前已开始挥动；画面仍从顶点开始回放。", small);
-            if (Fold("挥拍起点与终点", ref strokeEndpointsOpen))
+            else SettingSlider(L.T("启动时刻"), ref stroke.StartTime, -60, 1.5f, "s");
+            GUILayout.Label(stroke.Speed == 0 ? L.T("速度为 0：球拍保持在路径中点。") : L.F("路径长度 {0:0.000} m · 时长 {1:0.000} s", stroke.PathLength, stroke.Duration), small);
+            GUILayout.Label(L.F("向右 {0:+0.00;-0.00;0} · 向上 {1:+0.00;-0.00;0} · 向前 {2:+0.00;-0.00;0} m/s", stroke.Velocity.X, stroke.Velocity.Y, stroke.Velocity.Z), small);
+            if (stroke.StartTime < 0) GUILayout.Label(L.T("该路径在抛球顶点之前已开始挥动；画面仍从顶点开始回放。"), small);
+            if (Fold(L.T("挥拍起点与终点"), ref strokeEndpointsOpen))
             {
-                GUILayout.Label(strokeAutoContact ? "拖动一端，另一端联动，保持经过触球点。" : "自由寻碰：起终点与时机独立，可挥空。", small);
-                V3 oldStart = stroke.Start; StrokeVector("起点", ref stroke.Start, true);
+                GUILayout.Label(strokeAutoContact ? L.T("拖动一端，另一端联动，保持经过触球点。") : L.T("自由寻碰：起终点与时机独立，可挥空。"), small);
+                V3 oldStart = stroke.Start; StrokeVector(L.T("起点"), ref stroke.Start, true);
                 if (strokeAutoContact && (oldStart - stroke.Start).Length > 1e-9)
-                { try { AlignStrokeEndpoint(1, stroke.Start); } catch (ArgumentException e) { error = e.Message; } }
-                V3 oldEnd = stroke.End; StrokeVector("终点", ref stroke.End, true);
+                { try { AlignStrokeEndpoint(1, stroke.Start); } catch (ArgumentException e) { error = L.T(e.Message); } }
+                V3 oldEnd = stroke.End; StrokeVector(L.T("终点"), ref stroke.End, true);
                 if (strokeAutoContact && (oldEnd - stroke.End).Length > 1e-9)
-                { try { AlignStrokeEndpoint(2, stroke.End); } catch (ArgumentException e) { error = e.Message; } }
+                { try { AlignStrokeEndpoint(2, stroke.End); } catch (ArgumentException e) { error = L.T(e.Message); } }
             }
-            if (Fold("高级 · 触球", ref strokeRubberOpen))
+            if (Fold(L.T("高级 · 触球"), ref strokeRubberOpen))
             {
-                bool auto = GUILayout.Toggle(strokeAutoContact, "自动对准触球（推荐）");
+                bool auto = GUILayout.Toggle(strokeAutoContact, L.T("自动对准触球（推荐）"));
                 if (auto != strokeAutoContact) { strokeAutoContact = auto; parametersChanged = true; }
-                GUILayout.Label("关闭后可独立设置时机、自由寻碰，可能挥空。", small);
+                GUILayout.Label(L.T("关闭后可独立设置时机、自由寻碰，可能挥空。"), small);
             }
             }
             GUILayout.EndScrollView(); GUILayout.EndArea();
@@ -333,7 +333,7 @@ namespace TableTennis
                 strokeDragPlane = new Plane(cameraMode == 2 ? Vector3.right : Vector3.up, strokeDragOrigin);
                 Ray ray = StrokePointerRay(mouse);
                 if (!strokeDragPlane.Raycast(ray, out float distance))
-                { notice = "当前方向难以拖动水平面，请切到俯视或侧视。"; return false; }
+                { notice = L.T("当前方向难以拖动水平面，请切到俯视或侧视。"); return false; }
                 strokeDragHit = ray.GetPoint(distance);
             }
             strokeDragging = index; playing = false; cameraAdjusted = true;
@@ -359,7 +359,7 @@ namespace TableTennis
                 Mathf.Clamp(point.z, ballPoint ? -3 : -4, ballPoint ? -0.5f : 4));
             if (strokeDragging == 0) stroke.Apex = p;
             else if (strokeAutoContact)
-            { try { AlignStrokeEndpoint(strokeDragging, p); } catch (ArgumentException ex) { error = ex.Message; return; } }
+            { try { AlignStrokeEndpoint(strokeDragging, p); } catch (ArgumentException ex) { error = L.T(ex.Message); return; } }
             else if (strokeDragging == 1) stroke.Start = p; else stroke.End = p;
             Recalculate(); editField = "";
         }
@@ -399,10 +399,10 @@ namespace TableTennis
                 Color previous = GUI.color; GUI.color = new Color(0.04f, 0.07f, 0.09f);
                 GUI.DrawTexture(rect, strokeHandleTexture); GUI.color = color;
                 GUI.DrawTexture(new Rect(p.x - 4, p.y - 4, 8, 8), strokeHandleTexture); GUI.color = previous;
-                GUI.Label(new Rect(p.x - 18, p.y - 18, 36, 36), new GUIContent("", (i == 0 ? "拖动落球顶点" : i == 1 ? "拖动挥拍起点" : "拖动挥拍终点") + "；Shift 只改高度"), small);
+                GUI.Label(new Rect(p.x - 18, p.y - 18, 36, 36), new GUIContent("", (i == 0 ? L.T("拖动落球顶点") : i == 1 ? L.T("拖动挥拍起点") : L.T("拖动挥拍终点")) + L.T("；Shift 只改高度")), small);
                 if (strokeDragging == i)
                     GUI.Label(new Rect(ViewArea.x + 18, ViewTop + 35, ViewArea.width - 36, 26),
-                        $"{(i == 0 ? "落球顶点" : i == 1 ? "挥拍起点" : "挥拍终点")}  X {StrokePoint(i).X:0.00} · Y {StrokePoint(i).Y:0.00} · Z {StrokePoint(i).Z:0.00} m", small);
+                        $"{(i == 0 ? L.T("落球顶点") : i == 1 ? L.T("挥拍起点") : L.T("挥拍终点"))}  X {StrokePoint(i).X:0.00} · Y {StrokePoint(i).Y:0.00} · Z {StrokePoint(i).Z:0.00} m", small);
             }
             if (e.type == EventType.MouseDown && e.button == 0 && GUIUtility.hotControl == 0 && nearest >= 0)
             {
@@ -420,51 +420,51 @@ namespace TableTennis
             if (DrawSpinSettingsPanel()) return;
             DrawRect(new Rect(CanvasRight, 0, ReceivePanelWidth, UIHeight), new Color(0.075f, 0.105f, 0.13f));
             GUILayout.BeginArea(new Rect(CanvasRight + 16, SpinPanelHeight + 12, ReceivePanelWidth - 32, Mathf.Max(30, UIHeight - SpinPanelHeight - 24)));
-            GUILayout.Label("实际出球结果", heading);
-            GUILayout.Label("由碰撞算出速度与旋转", small);
+            GUILayout.Label(L.T("实际出球结果"), heading);
+            GUILayout.Label(L.T("由碰撞算出速度与旋转"), small);
             strokeResultScroll = GUILayout.BeginScrollView(strokeResultScroll);
             if (strokeResult == null) GUILayout.Label(error, section);
-            else if (serveContact == null) GUILayout.Label(strokeResult.MissReason + "\n请调整挥拍位置或启动时刻。", section);
+            else if (serveContact == null) GUILayout.Label(L.T(strokeResult.MissReason) + L.T("\n请调整挥拍位置或启动时刻。"), section);
             else
             {
                 var hit = serveContact;
-                GUILayout.Label($"{(strokeResult.FrontFace ? "黑面" : "红面")}击中 · {hit.Before.Time:0.000} s", section);
+                GUILayout.Label(L.F("{0}击中 · {1:0.000} s", (strokeResult.FrontFace ? L.T("黑面") : L.T("红面")), hit.Before.Time), section);
                 double shotAngle = hit.After.Velocity.Length > 1e-10 ? Math.Asin(hit.After.Velocity.Y / hit.After.Velocity.Length) * 180 / Math.PI : 0;
-                GUILayout.Label($"拍面夹角 {stroke.TableAngle:0.#}°\n出球速度 {hit.After.Velocity.Length:0.00} m/s\n出球仰角 {shotAngle:0.0}°", small);
+                GUILayout.Label(L.F("拍面夹角 {0:0.#}°\n出球速度 {1:0.00} m/s\n出球仰角 {2:0.0}°", stroke.TableAngle, hit.After.Velocity.Length, shotAngle), small);
                 V3 spin = BallSpin.Components(hit.After.Spin / BallPhysics.Rps, hit.After.Velocity);
-                GUILayout.Label($"上下旋 {spin.X:+0.0;-0.0;0} rps\n侧旋 {spin.Y:+0.0;-0.0;0} rps\n沿球路轴 {spin.Z:+0.0;-0.0;0} rps", section);
-                GUILayout.Label("上下旋：正为上旋，负为下旋。侧旋：正向发球者右侧弯。", small);
-                GUILayout.Label("分量沿出球方向定义；示意图固定沿台长边观察。", small);
-                GUILayout.Label("摩擦位置与方向", section);
+                GUILayout.Label(L.F("上下旋 {0:+0.0;-0.0;0} rps\n侧旋 {1:+0.0;-0.0;0} rps\n沿球路轴 {2:+0.0;-0.0;0} rps", spin.X, spin.Y, spin.Z), section);
+                GUILayout.Label(L.T("上下旋：正为上旋，负为下旋。侧旋：正向发球者右侧弯。"), small);
+                GUILayout.Label(L.T("分量沿出球方向定义；示意图固定沿台长边观察。"), small);
+                GUILayout.Label(L.T("摩擦位置与方向"), section);
                 V3 arm = -hit.Normal;
-                GUILayout.Label($"触点在球的{(arm.Y < -0.3 ? "下部" : arm.Y > 0.3 ? "上部" : "侧部")}；橙点标记触点。\n绿箭头：胶皮相对球面的摩擦方向。", small);
-                if (GUILayout.Button("放大并停在触球", quietButton)) FocusStrokeContact();
-                GUILayout.Label(strokeResult.TwoBounces ? "已先落本方，再落对方半台" : "未完成本方 → 对方两次落台", section);
-                if (strokeResult.MayTouchTable) GUILayout.Label("球拍路径可能碰台，请调整。", section);
+                GUILayout.Label(L.F("触点在球的{0}；橙点标记触点。\n绿箭头：胶皮相对球面的摩擦方向。", (arm.Y < -0.3 ? L.T("下部") : arm.Y > 0.3 ? L.T("上部") : L.T("侧部"))), small);
+                if (GUILayout.Button(L.T("放大并停在触球"), quietButton)) FocusStrokeContact();
+                GUILayout.Label(strokeResult.TwoBounces ? L.T("已先落本方，再落对方半台") : L.T("未完成本方 → 对方两次落台"), section);
+                if (strokeResult.MayTouchTable) GUILayout.Label(L.T("球拍路径可能碰台，请调整。"), section);
                 GUI.enabled = strokeResult.TwoBounces && !strokeResult.MayTouchTable;
-                if (GUILayout.Button("用这个发球研究接法", primaryButton)) UseStrokeForReceive();
+                if (GUILayout.Button(L.T("用这个发球研究接法"), primaryButton)) UseStrokeForReceive();
                 GUI.enabled = true;
             }
-            if (Fold("球台摩擦与反弹", ref strokeTableOpen))
+            if (Fold(L.T("球台摩擦与反弹"), ref strokeTableOpen))
             {
-                SettingSlider("球台摩擦 μ", ref settings.TableFriction, 0, 1);
-                SettingSlider("球台恢复 e", ref settings.TableRestitution, 0, 1);
-                GUILayout.Label("摩擦同时改变线速度和旋转。下列为模型结果，系数尚待实测标定。", small);
+                SettingSlider(L.T("球台摩擦 μ"), ref settings.TableFriction, 0, 1);
+                SettingSlider(L.T("球台恢复 e"), ref settings.TableRestitution, 0, 1);
+                GUILayout.Label(L.T("摩擦同时改变线速度和旋转。下列为模型结果，系数尚待实测标定。"), small);
                 int bounce = 0;
                 if (flight != null) foreach (var e in flight.Events)
                 {
                     if (e.Kind != "球台") continue;
-                    GUILayout.Label($"第 {++bounce} 跳 · {(e.Before.Position.Z < 0 ? "本方" : "对方")}", section);
+                    GUILayout.Label(L.F("第 {0} 跳 · {1}", ++bounce, (e.Before.Position.Z < 0 ? L.T("本方") : L.T("对方"))), section);
                     V3 before = BallSpin.Components(e.Before.Spin / BallPhysics.Rps, launch.Velocity);
                     V3 after = BallSpin.Components(e.After.Spin / BallPhysics.Rps, launch.Velocity);
-                    GUILayout.Label($"速度 {e.Before.Velocity.Length:0.00} → {e.After.Velocity.Length:0.00} m/s\n上下旋 {before.X:+0.0;-0.0;0} → {after.X:+0.0;-0.0;0} rps\n侧旋 {before.Y:+0.0;-0.0;0} → {after.Y:+0.0;-0.0;0} rps\n纵轴 {before.Z:+0.0;-0.0;0} → {after.Z:+0.0;-0.0;0} rps", small);
+                    GUILayout.Label(L.F("速度 {0:0.00} → {1:0.00} m/s\n上下旋 {2:+0.0;-0.0;0} → {3:+0.0;-0.0;0} rps\n侧旋 {4:+0.0;-0.0;0} → {5:+0.0;-0.0;0} rps\n纵轴 {6:+0.0;-0.0;0} → {7:+0.0;-0.0;0} rps", e.Before.Velocity.Length, e.After.Velocity.Length, before.X, after.X, before.Y, after.Y, before.Z, after.Z), small);
                 }
             }
             GUILayout.Space(12);
             GUI.enabled = strokeResult != null;
-            if (GUILayout.Button("导出动作与轨迹", quietButton)) ExportStroke();
+            if (GUILayout.Button(L.T("导出动作与轨迹"), quietButton)) ExportStroke();
             GUI.enabled = true;
-            GUILayout.Label("固定拍型、直线匀速；未建模抛球手、拍边击球及人体动作。", small);
+            GUILayout.Label(L.T("固定拍型、直线匀速；未建模抛球手、拍边击球及人体动作。"), small);
             GUILayout.EndScrollView(); GUILayout.EndArea();
         }
 
@@ -473,10 +473,10 @@ namespace TableTennis
             float left = panelWidth + 18, width = CanvasRight - left - 18;
             DrawRect(new Rect(panelWidth, 0, CanvasRight - panelWidth, ViewTop), new Color(0.055f, 0.08f, 0.10f));
             DrawRect(new Rect(panelWidth, UIHeight - FooterHeight, CanvasRight - panelWidth, FooterHeight), new Color(0.055f, 0.08f, 0.10f));
-            GUI.Label(new Rect(left, 16, width, 30), "落球 → 挥拍触球 → 弧线落点", heading);
-            GUI.Label(new Rect(left, 50, width, 26), "橙：落球   黄：球拍路径   青：出球与反弹", small);
+            GUI.Label(new Rect(left, 16, width, 30), L.T("落球 → 挥拍触球 → 弧线落点"), heading);
+            GUI.Label(new Rect(left, 50, width, 26), L.T("橙：落球   黄：球拍路径   青：出球与反弹"), small);
             GUILayout.BeginArea(new Rect(left, 82, width, 38));
-            int selected = GUILayout.Toolbar(strokeCloseup ? 3 : cameraMode == 1 ? 0 : cameraMode == 2 ? 1 : 2, new[] { "俯视", "侧视", "三维", "触球放大" });
+            int selected = GUILayout.Toolbar(strokeCloseup ? 3 : cameraMode == 1 ? 0 : cameraMode == 2 ? 1 : 2, new[] { L.T("俯视"), L.T("侧视"), L.T("三维"), L.T("触球放大") });
             int current = strokeCloseup ? 3 : cameraMode == 1 ? 0 : cameraMode == 2 ? 1 : 2;
             if (selected != current)
             {
@@ -484,20 +484,20 @@ namespace TableTennis
                 else { strokeCloseup = false; SetCamera(selected == 0 ? 1 : selected == 1 ? 2 : 0); }
             }
             GUILayout.EndArea();
-            if (serveRacket != null) WorldLabel(serveRacket.position, $"球拍 {stroke.TableAngle:0.#}°", 20);
+            if (serveRacket != null) WorldLabel(serveRacket.position, L.F("球拍 {0:0.#}°", stroke.TableAngle), 20);
             if (!strokeCloseup)
             {
-                WorldLabel(U(stroke.Apex), "落球顶点", -30);
-                WorldLabel(U(stroke.Start), "挥拍起点", 20); WorldLabel(U(stroke.End), "挥拍终点", 20);
+                WorldLabel(U(stroke.Apex), L.T("落球顶点"), -30);
+                WorldLabel(U(stroke.Start), L.T("挥拍起点"), 20); WorldLabel(U(stroke.End), L.T("挥拍终点"), 20);
             }
             if (strokeTimeline.Count > 0)
             {
                 var s = CurrentStrokeState();
-                string stage = serveContact == null ? "落球 / 漏球" : time < serveContact.Before.Time - 0.001 ? "下落中" : Math.Abs(time - serveContact.Before.Time) < 0.015 ? "触球瞬间" : "出球与反弹";
-                GUI.Label(new Rect(left, ViewTop + 6, width, 25), $"{stage}  ·  当前 {s.Velocity.Length:0.00} m/s / {s.Spin.Length / BallPhysics.Rps:0.0} rps", small);
+                string stage = serveContact == null ? L.T("落球 / 漏球") : time < serveContact.Before.Time - 0.001 ? L.T("下落中") : Math.Abs(time - serveContact.Before.Time) < 0.015 ? L.T("触球瞬间") : L.T("出球与反弹");
+                GUI.Label(new Rect(left, ViewTop + 6, width, 25), L.F("{0}  ·  当前 {1:0.00} m/s / {2:0.0} rps", stage, s.Velocity.Length, s.Spin.Length / BallPhysics.Rps), small);
             }
             string problem = string.IsNullOrEmpty(inputError) ? error : inputError;
-            if (strokeResult != null && serveContact == null) problem = strokeResult.MissReason;
+            if (strokeResult != null && serveContact == null) problem = L.T(strokeResult.MissReason);
             if (!string.IsNullOrEmpty(problem))
             {
                 DrawRect(new Rect(left, ViewTop + 38, width, 64), new Color(0.23f, 0.16f, 0.12f));
@@ -506,17 +506,17 @@ namespace TableTennis
             GUILayout.BeginArea(new Rect(left, UIHeight - FooterHeight + 8, width, FooterHeight - 12));
             GUILayout.BeginHorizontal();
             GUI.enabled = strokeTimeline.Count > 0;
-            if (GUILayout.Button(playing ? "暂停" : "慢放全程", primaryButton, GUILayout.Width(104))) ToggleStrokePlayback();
-            if (GUILayout.Button("重播", GUILayout.Width(60))) { time = 0; playing = true; }
+            if (GUILayout.Button(playing ? L.T("暂停") : L.T("慢放全程"), primaryButton, GUILayout.Width(104))) ToggleStrokePlayback();
+            if (GUILayout.Button(L.T("重播"), GUILayout.Width(60))) { time = 0; playing = true; }
             if (GUILayout.Button($"{playbackSpeed:0.###}×", GUILayout.Width(72))) playbackSpeed = playbackSpeed == 0.1f ? 0.025f : playbackSpeed == 0.025f ? 1 : 0.1f;
             GUI.enabled = serveContact != null;
-            if (GUILayout.Button("停在触球")) { time = (float)serveContact.Before.Time + 0.000001f; playing = false; }
+            if (GUILayout.Button(L.T("停在触球"))) { time = (float)serveContact.Before.Time + 0.000001f; playing = false; }
             GUI.enabled = true; GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             float t = GUILayout.HorizontalSlider(time, 0, Mathf.Max(0.001f, StrokeEnd));
             if (t != time) { time = t; playing = false; }
             GUILayout.Label($"{time:0.000} s", value, GUILayout.Width(90)); GUILayout.EndHorizontal();
-            GUILayout.Label(string.IsNullOrEmpty(notice) ? "参数改变即重算；空格播放/暂停 · 球与拍保持实际尺寸" : notice, small);
+            GUILayout.Label(string.IsNullOrEmpty(notice) ? L.T("参数改变即重算；空格播放/暂停 · 球与拍保持实际尺寸") : notice, small);
             GUILayout.EndArea();
         }
 
@@ -539,7 +539,7 @@ namespace TableTennis
             direction = (float)(Math.Atan2(s.Velocity.X, s.Velocity.Z) * 180 / Math.PI);
             originX = (float)s.Position.X; originY = (float)s.Position.Y; originZ = (float)s.Position.Z;
             SetWorldSpin(s.Spin / BallPhysics.Rps); Recalculate(); SetCamera(2);
-            notice = "已复制这次实际出球；在右半台轨迹选接球点，再测试接法。";
+            notice = L.T("已复制这次实际出球；在右半台轨迹选接球点，再测试接法。");
         }
 
         [Serializable] sealed class StrokeExport
@@ -585,9 +585,9 @@ namespace TableTennis
             {
                 string root = exportFiles.WriteStroke(strokeTimeline, JsonUtility.ToJson(new StrokeExport(this), true));
                 WebPlatform.DeliverExport(root);
-                notice = "已导出 " + Path.GetFileName(root) + "（参数与全程数据）";
+                notice = L.T("已导出 ") + Path.GetFileName(root) + L.T("（参数与全程数据）");
             }
-            catch (Exception e) { notice = "导出失败：" + e.Message; }
+            catch (Exception e) { notice = L.T("导出失败：") + L.T(e.Message); }
         }
     }
 }

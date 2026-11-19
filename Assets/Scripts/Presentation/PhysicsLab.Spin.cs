@@ -33,11 +33,11 @@ namespace TableTennis
             if (spinPreview == null) spinPreview = new SpinPreview();
             float x = CanvasRight + 16, width = ReceivePanelWidth - 32;
             DrawRect(SpinPanelRect, new Color(0.075f, 0.105f, 0.13f));
-            GUI.Label(new Rect(x, 10, width - 78, 30), cameraMode == 4 && serveContact == null ? "球的旋转 · 目标" : "球的旋转", heading);
-            bool opened = GUI.Toggle(new Rect(x + width - 70, 12, 70, 28), spinSettingsOpen, "设置", GUI.skin.button);
+            GUI.Label(new Rect(x, 10, width - 78, 30), cameraMode == 4 && serveContact == null ? L.T("球的旋转 · 目标") : L.T("球的旋转"), heading);
+            bool opened = GUI.Toggle(new Rect(x + width - 70, 12, 70, 28), spinSettingsOpen, L.T("设置"), GUI.skin.button);
             if (opened && !spinSettingsOpen) { equipmentRole = mode == 3 || mode == 0 || cameraMode == 4 ? 0 : 1; settingsPage = 0; spinSettingsScroll = Vector2.zero; }
             spinSettingsOpen = opened;
-            int source = GUI.Toolbar(new Rect(x, 46, width, 30), spinPreviewSource, new[] { "出球旋转", "随回放" });
+            int source = GUI.Toolbar(new Rect(x, 46, width, 30), spinPreviewSource, new[] { L.T("出球旋转"), L.T("随回放") });
             if (source != spinPreviewSource) { spinPreviewSource = source; spinPreview.Reset(); }
             spinPreview.SetViewRotation(view.transform.rotation);
             spinPreview.Draw(new Rect(x, 80, width, 158), PreviewBallState(), small, true);
@@ -50,18 +50,19 @@ namespace TableTennis
             if (!spinSettingsOpen) return false;
             if (spinPreview == null) spinPreview = new SpinPreview();
             GUILayout.BeginArea(new Rect(CanvasRight + 16, SpinPanelHeight + 12, ReceivePanelWidth - 32, Mathf.Max(30, UIHeight - SpinPanelHeight - 24)));
-            int page = GUILayout.Toolbar(settingsPage, new[] { "球拍与胶皮", "旋转示意" });
+            LanguageSetting.DrawSelector();
+            int page = GUILayout.Toolbar(settingsPage, new[] { L.T("球拍与胶皮"), L.T("旋转示意") });
             if (page != settingsPage) { settingsPage = page; spinSettingsScroll = Vector2.zero; editField = ""; GUI.FocusControl(null); }
             spinSettingsScroll = GUILayout.BeginScrollView(spinSettingsScroll);
             if (settingsPage == 0) DrawEquipmentSettings();
             else
             {
-                GUILayout.Label("旋转示意设置", section);
+                GUILayout.Label(L.T("旋转示意设置"), section);
                 spinPreview.DrawControls(quietButton, small, true);
-                GUILayout.Label("只影响右上角示意球；实际旋转和物理计算保持原值。", small);
+                GUILayout.Label(L.T("只影响右上角示意球；实际旋转和物理计算保持原值。"), small);
             }
             GUILayout.EndScrollView();
-            if (GUILayout.Button("返回实验面板", quietButton)) spinSettingsOpen = false;
+            if (GUILayout.Button(L.T("返回实验面板"), quietButton)) spinSettingsOpen = false;
             GUILayout.EndArea();
             return true;
         }

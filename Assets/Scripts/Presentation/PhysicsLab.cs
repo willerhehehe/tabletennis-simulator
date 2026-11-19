@@ -49,6 +49,7 @@ namespace TableTennis
         void Start()
         {
             Application.targetFrameRate = 60;
+            LanguageSetting.Load();
             font = Resources.Load<Font>("NotoSansCJKsc-Regular");
             exportFiles = new ExperimentFiles(WebPlatform.ExportDirectory);
             BuildWorld(); OpenForwardServe(); Recalculate();
@@ -75,7 +76,7 @@ namespace TableTennis
             scene = new LabScene(); world = scene.Root; lineMaterial = scene.LineMaterial;
             ball = Sphere("球 · 40 mm", Vector3.zero, 0.04f, new Color(1, 0.78f, 0.39f)).transform;
             ball.GetComponent<Renderer>().sharedMaterial.shader = Shader.Find("Unlit/Color");
-            racket = CreateRacket("球拍 · 触球前后 10 ms");
+            racket = CreateRacket(L.T("球拍 · 触球前后 10 ms"));
             path = Line("当前轨迹", Array.Empty<Vector3>(), mint, 0.009f);
             reference = Line("参照轨迹", Array.Empty<Vector3>(), lavender, 0.006f);
             incomingPath = Line("触球前自由飞行", Array.Empty<Vector3>(), new Color(1, 0.63f, 0.3f), 0.009f);
@@ -202,7 +203,7 @@ namespace TableTennis
             catch (Exception e)
             {
                 EndPointPicking(false);
-                error = e.Message; playing = false; flight = null; path.positionCount = 0;
+                error = L.T(e.Message); playing = false; flight = null; path.positionCount = 0;
                 approach.Clear(); incomingPath.positionCount = racketArrow.positionCount = faceArrow.positionCount = spinArrow.positionCount = 0;
                 ball.gameObject.SetActive(false); racket.gameObject.SetActive(false);
                 ClearMarkers();
@@ -306,7 +307,7 @@ namespace TableTennis
             EventType inputEvent = Event.current.type;
             string text = focused && editField == control ? editText : number.ToString(focused ? "G7" : "0.###", CultureInfo.InvariantCulture);
             GUILayout.BeginHorizontal(); GUI.enabled = true;
-            GUILayout.Label(new GUIContent(label, $"范围 {min} 至 {max} {unit}"));
+            GUILayout.Label(new GUIContent(label, L.F("范围 {0} 至 {1} {2}", min, max, unit)));
             string typed = text;
             if (editable && Application.platform == RuntimePlatform.WebGLPlayer)
             {
@@ -324,7 +325,7 @@ namespace TableTennis
             }
             if (GUI.GetNameOfFocusedControl() == control && editField == control)
             {
-                if (!PhysicsSettings.TryNumber(editText, min, max, out _)) inputError = $"{label}：请输入 {min} 至 {max} {unit}，无效输入尚未应用。";
+                if (!PhysicsSettings.TryNumber(editText, min, max, out _)) inputError = L.F("{0}：请输入 {1} 至 {2} {3}，无效输入尚未应用。", label, min, max, unit);
                 if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return)
                 { GUI.FocusControl(null); editField = ""; Event.current.Use(); }
             }
@@ -339,16 +340,16 @@ namespace TableTennis
 
         void DrawResponseDetails(int id, BallState? state, V3 normal, V3 velocity)
         {
-            GUILayout.Label($"已启用 R{id:00} 整拍速度响应", small);
+            GUILayout.Label(L.F("已启用 R{0:00} 整拍速度响应", id), small);
             if (!state.HasValue) return;
             var c = InvertedRubberResponses.Get(id).At(state.Value, normal, velocity, out bool inRange);
-            GUILayout.Label($"当前触球 e {c.Restitution:0.000} · μ {c.Friction:0.000} · β {c.Tangent:0.000}", small);
-            if (!inRange) GUILayout.Label("当前触球超出训练覆盖范围；系数取边界值，结果属于外推。", small);
+            GUILayout.Label(L.F("当前触球 e {0:0.000} · μ {1:0.000} · β {2:0.000}", c.Restitution, c.Friction, c.Tangent), small);
+            if (!inRange) GUILayout.Label(L.T("当前触球超出训练覆盖范围；系数取边界值，结果属于外推。"), small);
         }
 
         void ApplyForehand()
         {
-            shotExample = "正手拉下旋 · 触球示例";
+            shotExample = L.T("正手拉下旋 · 触球示例");
             editField = "";
             mode = 1; settings = new PhysicsSettings();
             racketRoll = -70;
@@ -369,7 +370,7 @@ namespace TableTennis
             facePitch = BackhandFlick.FacePitch; faceYaw = BackhandFlick.FaceYaw; racketRoll = BackhandFlick.Roll;
             racketForward = BackhandFlick.Forward; racketUp = BackhandFlick.Up; racketSide = BackhandFlick.Side;
             if (!receiveEquipmentChosen) { rubberResponseId = 0; rubberBounce = (float)BackhandFlick.Rubber.Restitution; rubberFriction = (float)BackhandFlick.Rubber.Friction; rubberTangent = (float)BackhandFlick.Rubber.Tangent; }
-            shotExample = receiveEquipmentChosen ? "右手反手拧拉 · 当前器材 · 触球示例" : "右手反手拧拉 · R01 反胶 · 触球示例";
+            shotExample = receiveEquipmentChosen ? L.T("右手反手拧拉 · 当前器材 · 触球示例") : L.T("右手反手拧拉 · R01 反胶 · 触球示例");
             referenceFlight = null; reference.positionCount = 0; referenceLabel = "";
             parametersChanged = true; scroll = Vector2.zero;
         }
@@ -382,10 +383,10 @@ namespace TableTennis
             {
                 string stem = exportFiles.WriteFlight(flight, mode == 0 ? null : approach, incoming, launch, JsonUtility.ToJson(new ExportSettings(this), true));
                 WebPlatform.DeliverExport(stem);
-                notice = "已导出：" + stem + ".csv（含事件和参数文件）";
+                notice = L.T("已导出：") + stem + L.T(".csv（含事件和参数文件）");
                 Debug.Log(notice);
             }
-            catch (Exception e) { notice = "导出失败：" + e.Message; Debug.LogError(notice); }
+            catch (Exception e) { notice = L.T("导出失败：") + L.T(e.Message); Debug.LogError(notice); }
         }
 
         [Serializable] sealed class ExportSettings
