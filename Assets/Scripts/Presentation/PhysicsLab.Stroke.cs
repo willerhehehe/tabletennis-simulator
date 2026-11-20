@@ -507,7 +507,7 @@ namespace TableTennis
             GUILayout.BeginHorizontal();
             GUI.enabled = strokeTimeline.Count > 0;
             if (GUILayout.Button(playing ? L.T("暂停") : L.T("慢放全程"), primaryButton, GUILayout.Width(104))) ToggleStrokePlayback();
-            if (GUILayout.Button(L.T("重播"), GUILayout.Width(60))) { time = 0; playing = true; }
+            if (GUILayout.Button(L.T("重播"), GUILayout.Width(L.Current == Language.French ? 64 : 60))) { time = 0; playing = true; }
             if (GUILayout.Button($"{playbackSpeed:0.###}×", GUILayout.Width(72))) playbackSpeed = playbackSpeed == 0.1f ? 0.025f : playbackSpeed == 0.025f ? 1 : 0.1f;
             GUI.enabled = serveContact != null;
             if (GUILayout.Button(L.T("停在触球"))) { time = (float)serveContact.Before.Time + 0.000001f; playing = false; }

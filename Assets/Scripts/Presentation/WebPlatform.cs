@@ -13,7 +13,7 @@ namespace TableTennis
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")] static extern void TT_Download(byte[] bytes, int length, string filename);
         [DllImport("__Internal")] static extern float TT_DeviceScale();
-        [DllImport("__Internal")] static extern void TT_Number(string target, string label, string value, float min, float max);
+        [DllImport("__Internal")] static extern void TT_Number(string target, string label, string value, float min, float max, int french);
 #endif
         public static float DeviceScale
         {
@@ -30,7 +30,8 @@ namespace TableTennis
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             WebGLInput.captureAllKeyboardInput = false;
-            TT_Number(target, label, value.ToString("G7", System.Globalization.CultureInfo.InvariantCulture), min, max);
+            TT_Number(target, label, value.ToString("G7", System.Globalization.CultureInfo.InvariantCulture), min, max,
+                L.Current == Language.French ? 1 : 0);
 #endif
         }
         public static void DeliverExport(string stem)

@@ -72,7 +72,7 @@ namespace TableTennis
             servePlaying = false; serveTime = 0; serveContact = null; serveContactError = "";
             if (mode == 1) return;
             try { serveContact = ServeContact.Solve(ServeTarget, stroke.Restitution, stroke.Friction, stroke.Tangent, stroke.ResponseId); }
-            catch (ArgumentException e) { serveContactError = L.T(e.Message); }
+            catch (ArgumentException e) { serveContactError = e.Message; }
         }
 
         void OpenServeContact()
@@ -252,7 +252,7 @@ namespace TableTennis
             if (serveContact == null)
             {
                 GUILayout.Label(L.T("尚未找到匹配动作"), section);
-                GUILayout.Label(serveContactError, small);
+                GUILayout.Label(L.T(serveContactError), small);
                 GUILayout.Label(L.T("灰色球拍只标示离拍位置，不是已验证的拍型。挥拍箭头和慢放暂不提供。目标球速、旋转与球路保持不变。"), small);
             }
             else

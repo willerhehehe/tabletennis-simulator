@@ -92,7 +92,7 @@ namespace TableTennis
                 if (cameraMode == 4) { if (serveTime >= .02f) serveTime = -.02f; servePlaying = !servePlaying; }
                 else if (mode == 3) ToggleStrokePlayback(); else if (flight != null) playing = !playing;
             }
-            if (GUILayout.Button(L.T("重播"), GUILayout.Width(58)))
+            if (GUILayout.Button(L.T("重播"), GUILayout.Width(L.Current == Language.French ? 64 : 58)))
             { if (cameraMode == 4) { serveTime = -.02f; servePlaying = true; } else { time = mode == 3 ? 0 : StartTime; playing = true; } }
             mobilePan = GUILayout.Toggle(mobilePan, L.T("平移"), GUI.skin.button, GUILayout.Width(55));
             if (GUILayout.Button("−", GUILayout.Width(34))) ZoomCamera(2);

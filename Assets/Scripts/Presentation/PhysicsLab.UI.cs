@@ -277,7 +277,7 @@ namespace TableTennis
             GUILayout.BeginArea(new Rect(left, UIHeight - FooterHeight + 10, width, FooterHeight - 12));
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(playing ? L.T("暂停") : L.T("播放"), primaryButton, GUILayout.Width(78), GUILayout.Height(34))) TogglePlayback();
-            if (GUILayout.Button(new GUIContent(L.T("重播"), L.T("从发球起点重新播放；快捷键 R")), GUILayout.Width(58))) { time = StartTime; playing = true; }
+            if (GUILayout.Button(new GUIContent(L.T("重播"), L.T("从发球起点重新播放；快捷键 R")), GUILayout.Width(L.Current == Language.French ? 64 : 58))) { time = StartTime; playing = true; }
             time = GUILayout.HorizontalSlider(time, StartTime, (float)flight.Samples[flight.Samples.Count - 1].Time);
             GUILayout.Label($"{time:0.000} s", value, GUILayout.Width(80));
             if (GUILayout.Button($"{playbackSpeed:0.##}×", GUILayout.Width(64))) playbackSpeed = playbackSpeed == 0.25f ? 1 : playbackSpeed == 1 ? 0.1f : 0.25f;
