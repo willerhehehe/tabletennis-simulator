@@ -36,10 +36,10 @@ namespace TableTennis
         void DrawEquipmentSettings()
         {
             bool enabled = GUI.enabled; GUI.enabled = enabled && !IsStudying;
-            int role = GUILayout.Toolbar(equipmentRole, new[] { "发球拍", "接球 / 单板拍" });
+            int role = GUILayout.Toolbar(equipmentRole, new[] { L.T("发球拍"), L.T("接球 / 单板拍") });
             if (role != equipmentRole) { equipmentRole = role; editField = ""; GUI.FocusControl(null); }
             bool serving = equipmentRole == 0;
-            GUILayout.Label(serving ? "用于挥拍发球和发球触球示例。" : "用于单板击球与接发评估。", small);
+            GUILayout.Label(serving ? L.T("用于挥拍发球和发球触球示例。") : L.T("用于单板击球与接发评估。"), small);
             var c = EquipmentCoefficients(serving); int responseId = EquipmentResponse(serving);
             var choice = rubberPresets.DrawSelector(c, responseId, small);
             if (choice.HasValue)
@@ -47,14 +47,14 @@ namespace TableTennis
                 ApplyEquipmentChoice(serving, choice.Value);
                 c = EquipmentCoefficients(serving); responseId = EquipmentResponse(serving);
             }
-            GUILayout.Label("选择器材或拟合方式即生效。", small);
+            GUILayout.Label(L.T("选择器材或拟合方式即生效。"), small);
             if (responseId == 0)
             {
-                GUILayout.Label("生效系数 · 可手动修改", small);
+                GUILayout.Label(L.T("生效系数 · 可手动修改"), small);
                 float e = (float)c.Restitution, mu = (float)c.Friction, beta = (float)c.Tangent;
-                bool changed = Slider("恢复系数 e", ref e, 0, 1);
-                changed |= Slider("摩擦系数 μ", ref mu, 0, 1.5f);
-                changed |= Slider("切向恢复 β", ref beta, -1, 1);
+                bool changed = Slider(L.T("恢复系数 e"), ref e, 0, 1);
+                changed |= Slider(L.T("摩擦系数 μ"), ref mu, 0, 1.5f);
+                changed |= Slider(L.T("切向恢复 β"), ref beta, -1, 1);
                 if (changed) SetEquipment(serving, new RubberCoefficients(e, mu, beta), 0);
             }
             else
@@ -64,16 +64,16 @@ namespace TableTennis
                 V3 normal = serving ? serveContact?.Normal ?? stroke.Normal : RacketNormal;
                 V3 velocity = serving ? serveContact?.RacketVelocity ?? stroke.Velocity : RacketVelocity;
                 DrawResponseDetails(responseId, state, normal, velocity);
-                if (!active) GUILayout.Label("当前模式没有使用这侧球拍，触球时再计算实际系数。", small);
-                if (GUILayout.Button("转为手动固定参数", quietButton))
+                if (!active) GUILayout.Label(L.T("当前模式没有使用这侧球拍，触球时再计算实际系数。"), small);
+                if (GUILayout.Button(L.T("转为手动固定参数"), quietButton))
                 {
                     var fixedValues = state.HasValue ? InvertedRubberResponses.Get(responseId).At(state.Value, normal, velocity, out _) : c;
                     SetEquipment(serving, fixedValues, 0);
                 }
             }
             rubberPresets.DrawDetails(EquipmentCoefficients(serving), EquipmentResponse(serving), quietButton, small);
-            if (GUILayout.Button("恢复经验初值", quietButton)) SetEquipment(serving, new RubberCoefficients(.8, .8, .15), 0);
-            if (IsStudying) GUILayout.Label("评估进行中，球拍设置暂时锁定。", small);
+            if (GUILayout.Button(L.T("恢复经验初值"), quietButton)) SetEquipment(serving, new RubberCoefficients(.8, .8, .15), 0);
+            if (IsStudying) GUILayout.Label(L.T("评估进行中，球拍设置暂时锁定。"), small);
             GUI.enabled = enabled;
         }
     }

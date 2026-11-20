@@ -65,12 +65,12 @@ namespace TableTennis
             DrawRect(new Rect(panelWidth - 1, 0, 1, UIHeight), new Color(0.19f, 0.25f, 0.28f));
             parametersChanged = false; inputError = "";
             GUILayout.BeginArea(new Rect(18, 16, panelWidth - 36, UIHeight - 32));
-            GUILayout.Label(mode == 2 ? "01  发球设置" : "单球实验", heading);
-            GUILayout.Label(mode == 2 ? "改变来球，再比较接法" : "独立观察击球与飞行", small);
+            GUILayout.Label(mode == 2 ? L.T("01  发球设置") : L.T("单球实验"), heading);
+            GUILayout.Label(mode == 2 ? L.T("改变来球，再比较接法") : L.T("独立观察击球与飞行"), small);
             GUILayout.Space(12);
             GUI.enabled = !IsStudying;
-            GUILayout.Label("实验模式", small);
-            int tab = GUILayout.SelectionGrid(mode + 1, new[] { "挥拍发球", "出球模拟", "单板击球", "接发研究" }, 2);
+            GUILayout.Label(L.T("实验模式"), small);
+            int tab = GUILayout.SelectionGrid(mode + 1, new[] { L.T("挥拍发球"), L.T("出球模拟"), L.T("单板击球"), L.T("接发研究") }, 2);
             int selectedMode = tab == 0 ? 3 : tab - 1;
             if (selectedMode != mode)
             {
@@ -83,68 +83,68 @@ namespace TableTennis
             }
             GUILayout.Space(10);
             scroll = GUILayout.BeginScrollView(scroll);
-            if (mode == 2 && GUILayout.Button("载入下旋发球示例", quietButton)) { ApplyServeStudy(); parametersChanged = true; }
+            if (mode == 2 && GUILayout.Button(L.T("载入下旋发球示例"), quietButton)) { ApplyServeStudy(); parametersChanged = true; }
             if (mode == 1)
             {
-                if (GUILayout.Button("正手拉下旋示例", quietButton)) { ApplyForehand(); parametersChanged = true; }
-                if (GUILayout.Button("反手拧拉下旋示例", quietButton)) ApplyBackhandFlick();
-                if (GUILayout.Button("对照：拧拉只横擦", quietButton)) { ApplyBackhandFlick(); racketUp = 0; }
-                if (!string.IsNullOrEmpty(shotExample)) GUILayout.Label("参考：" + shotExample + "\n改变参数可继续试验；未模拟完整手腕动作。", small);
-                if (GUILayout.Button("对照：上提不足", quietButton)) { ApplyForehand(); racketUp = ForehandBackspin.WeakUp; parametersChanged = true; }
+                if (GUILayout.Button(L.T("正手拉下旋示例"), quietButton)) { ApplyForehand(); parametersChanged = true; }
+                if (GUILayout.Button(L.T("反手拧拉下旋示例"), quietButton)) ApplyBackhandFlick();
+                if (GUILayout.Button(L.T("对照：拧拉只横擦"), quietButton)) { ApplyBackhandFlick(); racketUp = 0; }
+                if (!string.IsNullOrEmpty(shotExample)) GUILayout.Label(L.T("参考：") + shotExample + L.T("\n改变参数可继续试验；未模拟完整手腕动作。"), small);
+                if (GUILayout.Button(L.T("对照：上提不足"), quietButton)) { ApplyForehand(); racketUp = ForehandBackspin.WeakUp; parametersChanged = true; }
             }
             DrawSpinControls();
-            if (mode == 2 && Fold("发球路线 · 两次落台", ref serveRouteOpen))
+            if (mode == 2 && Fold(L.T("发球路线 · 两次落台"), ref serveRouteOpen))
             {
                 if (serveFlight != null)
                     for (int i = 0; i < Math.Min(2, serveFlight.Events.Count); i++)
                     {
                         var hit = serveFlight.Events[i];
-                        GUILayout.Label(hit.Kind == "球台" ? $"第 {i + 1} 跳  X {hit.Before.Position.X:+0.00;-0.00;0.00} / Z {hit.Before.Position.Z:+0.00;-0.00;0.00} m" : $"第 {i + 1} 次接触：{hit.Kind}", small);
+                        GUILayout.Label(hit.Kind == "球台" ? L.F("第 {0} 跳  X {1:+0.00;-0.00;0.00} / Z {2:+0.00;-0.00;0.00} m", i + 1, hit.Before.Position.X, hit.Before.Position.Z) : L.F("第 {0} 次接触：{1}", i + 1, L.T(hit.Kind)), small);
                     }
-                GUILayout.Label("先落本方半台，再落对方半台，之后选接球点。", small);
+                GUILayout.Label(L.T("先落本方半台，再落对方半台，之后选接球点。"), small);
             }
-            GUILayout.Label(mode == 1 ? "来球" : "速度与方向", section);
-            Slider("速度", ref speed, 1, 25, "m/s");
-            Slider(mode == 1 ? "向下入射角" : "出球仰角", ref elevation, mode == 2 ? -45 : -20, 40, "°");
+            GUILayout.Label(mode == 1 ? L.T("来球") : L.T("速度与方向"), section);
+            Slider(L.T("速度"), ref speed, 1, 25, "m/s");
+            Slider(mode == 1 ? L.T("向下入射角") : L.T("出球仰角"), ref elevation, mode == 2 ? -45 : -20, 40, "°");
             V3 relativeSpin = BallSpin.Components(WorldSpinRps, SpinTravel);
-            if (Slider("水平偏角", ref direction, -40, 40, "°") && !serveSpinOpen)
+            if (Slider(L.T("水平偏角"), ref direction, -40, 40, "°") && !serveSpinOpen)
                 SetWorldSpin(BallSpin.Compose(relativeSpin, SpinTravel));
             if (mode == 1)
             {
-                GUILayout.Label("拍型与挥拍", section);
-                Slider("拍面开合", ref facePitch, -30, 40, "°");
-                GUILayout.Label("0° 竖直；正值后仰，负值前压。", small);
-                Slider("拍面侧偏", ref faceYaw, -40, 40, "°");
-                Slider("拍柄转角", ref racketRoll, -180, 180, "°");
-                Slider("向前速度 · Z", ref racketForward, -RacketMotionLimits.Component, RacketMotionLimits.Component, "m/s");
-                Slider("向上速度 · Y", ref racketUp, -RacketMotionLimits.Component, RacketMotionLimits.Component, "m/s");
-                Slider("横向速度 · X", ref racketSide, -RacketMotionLimits.Component, RacketMotionLimits.Component, "m/s");
+                GUILayout.Label(L.T("拍型与挥拍"), section);
+                Slider(L.T("拍面开合"), ref facePitch, -30, 40, "°");
+                GUILayout.Label(L.T("0° 竖直；正值后仰，负值前压。"), small);
+                Slider(L.T("拍面侧偏"), ref faceYaw, -40, 40, "°");
+                Slider(L.T("拍柄转角"), ref racketRoll, -180, 180, "°");
+                Slider(L.T("向前速度 · Z"), ref racketForward, -RacketMotionLimits.Component, RacketMotionLimits.Component, "m/s");
+                Slider(L.T("向上速度 · Y"), ref racketUp, -RacketMotionLimits.Component, RacketMotionLimits.Component, "m/s");
+                Slider(L.T("横向速度 · X"), ref racketSide, -RacketMotionLimits.Component, RacketMotionLimits.Component, "m/s");
             }
-            if (Fold(mode == 1 ? "击球位置" : "离拍位置", ref servePositionOpen))
+            if (Fold(mode == 1 ? L.T("击球位置") : L.T("离拍位置"), ref servePositionOpen))
             {
-                Slider("横向 X", ref originX, -1, 1, "m");
-                Slider("球心高度 Y", ref originY, 0.80f, 1.8f, "m");
-                Slider("纵向 Z", ref originZ, -2.4f, -0.35f, "m");
+                Slider(L.T("横向 X"), ref originX, -1, 1, "m");
+                Slider(L.T("球心高度 Y"), ref originY, 0.80f, 1.8f, "m");
+                Slider(L.T("纵向 Z"), ref originZ, -2.4f, -0.35f, "m");
             }
-            if (Fold("物理参数", ref advanced))
+            if (Fold(L.T("物理参数"), ref advanced))
             {
-                GUILayout.Label("经验参数，仍需实测标定。", small);
-                SettingSlider("空气阻力 Cd", ref settings.Drag, 0, 1);
-                SettingSlider("升力斜率", ref settings.LiftSlope, 0, 1.5f);
-                SettingSlider("升力上限", ref settings.LiftCap, 0, 1);
-                SettingSlider("旋转衰减", ref settings.SpinDecay, 0, 0.5f, "1/s");
-                SettingSlider("球台恢复 e", ref settings.TableRestitution, 0, 1);
-                SettingSlider("球台摩擦 μ", ref settings.TableFriction, 0, 1);
+                GUILayout.Label(L.T("经验参数，仍需实测标定。"), small);
+                SettingSlider(L.T("空气阻力 Cd"), ref settings.Drag, 0, 1);
+                SettingSlider(L.T("升力斜率"), ref settings.LiftSlope, 0, 1.5f);
+                SettingSlider(L.T("升力上限"), ref settings.LiftCap, 0, 1);
+                SettingSlider(L.T("旋转衰减"), ref settings.SpinDecay, 0, 0.5f, "1/s");
+                SettingSlider(L.T("球台恢复 e"), ref settings.TableRestitution, 0, 1);
+                SettingSlider(L.T("球台摩擦 μ"), ref settings.TableFriction, 0, 1);
                 if (mode != 2)
                 {
-                    bool enabled = GUILayout.Toggle(settings.NetEnabled, "检测球网");
+                    bool enabled = GUILayout.Toggle(settings.NetEnabled, L.T("检测球网"));
                     if (enabled != settings.NetEnabled) { settings.NetEnabled = enabled; parametersChanged = true; }
                 }
             }
             GUILayout.EndScrollView();
             GUI.enabled = true;
             GUILayout.Space(10);
-            GUILayout.Label(IsStudying ? "正在评估，参数暂时锁定" : "拖动滑块观察变化 · 点击数值精确输入", small);
+            GUILayout.Label(IsStudying ? L.T("正在评估，参数暂时锁定") : L.T("拖动滑块观察变化 · 点击数值精确输入"), small);
             GUILayout.EndArea();
             DrawReceivePanel();
             if (parametersChanged) Recalculate();
@@ -158,19 +158,19 @@ namespace TableTennis
             float left = panelWidth + 22, width = CanvasRight - left - 22;
             DrawRect(new Rect(panelWidth, 0, CanvasRight - panelWidth, ViewTop), new Color(0.055f, 0.08f, 0.10f));
             DrawRect(new Rect(panelWidth, UIHeight - FooterHeight, CanvasRight - panelWidth, FooterHeight), new Color(0.055f, 0.08f, 0.10f));
-            GUI.Label(new Rect(left, 16, width - 190, 28), cameraMode == 4 ? "发球挥拍与摩擦位置" : mode == 2 ? "接发稳定性实验" : "乒乓球物理实验", heading);
-            GUI.Label(new Rect(left, 46, width, 22), cameraMode == 4 ? "目标出球 → 一组可复现的触球动作" : mode == 2 ? "设发球  →  选接球点  →  评估与比较" : "观察轨迹、旋转与碰撞", small);
+            GUI.Label(new Rect(left, 16, width - 190, 28), cameraMode == 4 ? L.T("发球挥拍与摩擦位置") : mode == 2 ? L.T("接发稳定性实验") : L.T("乒乓球物理实验"), heading);
+            GUI.Label(new Rect(left, 46, width, 22), cameraMode == 4 ? L.T("目标出球 → 一组可复现的触球动作") : mode == 2 ? L.T("设发球  →  选接球点  →  评估与比较") : L.T("观察轨迹、旋转与碰撞"), small);
             if (flight != null && cameraMode != 4)
             {
                 string verdict = mode != 0 && RacketGeometry.MayTouchTable(incoming.Position, RacketNormal, RacketVelocity, racketRoll)
-                    ? "球拍可能碰台" : flight.Verdict;
+                    ? L.T("球拍可能碰台") : flight.Verdict;
                 statusStyle.fontSize = 14;
                 statusStyle.normal.textColor = verdict == "落入对方半台" ? mint : new Color(1, 0.73f, 0.44f);
-                GUI.Label(new Rect(CanvasRight - 215, 18, 193, 27), new GUIContent("单次：" + verdict, "这是无误差的一条回球轨迹；右侧百分比来自多次扰动复验。"), statusStyle);
+                GUI.Label(new Rect(CanvasRight - 215, 18, 193, 27), new GUIContent(L.T("单次：") + L.T(verdict), L.T("这是无误差的一条回球轨迹；右侧百分比来自多次扰动复验。")), statusStyle);
             }
             GUILayout.BeginArea(new Rect(left, 76, width, 38)); GUILayout.BeginHorizontal();
             int selectedView = cameraMode == 4 ? -1 : cameraMode == 1 ? 0 : cameraMode == 2 ? 1 : cameraMode == 3 ? 3 : 2;
-            int selected = GUILayout.Toolbar(selectedView, mode != 0 ? new[] { "俯视", "侧视", "三维", "触球" } : new[] { "俯视", "侧视", "三维" }, GUILayout.Width(mode != 0 ? 252 : 198));
+            int selected = GUILayout.Toolbar(selectedView, mode != 0 ? new[] { L.T("俯视"), L.T("侧视"), L.T("三维"), L.T("触球") } : new[] { L.T("俯视"), L.T("侧视"), L.T("三维") }, GUILayout.Width(mode != 0 ? 252 : 198));
             if (selected != selectedView)
             {
                 if (cameraMode == 4 && selected < 3) { serveRouteView = selected; FitServeTrajectory(); }
@@ -183,21 +183,21 @@ namespace TableTennis
             if (mode == 2)
             {
                 GUI.enabled = !IsStudying && CanPickReceivePoint;
-                bool pick = GUILayout.Toggle(pickingReceivePoint, new GUIContent("选接球点", "在可接球轨迹上点击设置接球点；Esc 退出。"), GUI.skin.button, GUILayout.Width(100));
+                bool pick = GUILayout.Toggle(pickingReceivePoint, new GUIContent(L.T("选接球点"), L.T("在可接球轨迹上点击设置接球点；Esc 退出。")), GUI.skin.button, GUILayout.Width(100));
                 if (pick != pickingReceivePoint) { if (pick) BeginPointPicking(); else EndPointPicking(true); }
                 GUI.enabled = true;
             }
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button(new GUIContent(referenceFlight == null ? "固定轨迹" : "清除参照", "固定当前无误差轨迹，便于修改参数后比较。"), GUILayout.Width(92)))
+            if (GUILayout.Button(new GUIContent(referenceFlight == null ? L.T("固定轨迹") : L.T("清除参照"), L.T("固定当前无误差轨迹，便于修改参数后比较。")), GUILayout.Width(92)))
             {
                 if (referenceFlight != null) { reference.positionCount = 0; referenceFlight = null; referenceLabel = ""; FitCamera(); }
                 else if (flight != null)
                 {
                     var points = new Vector3[path.positionCount]; path.GetPositions(points); reference.positionCount = points.Length; reference.SetPositions(points);
-                    referenceFlight = flight; referenceLaunch = launch; referenceLabel = "紫线为已固定的参照";
+                    referenceFlight = flight; referenceLaunch = launch; referenceLabel = L.T("紫线为已固定的参照");
                 }
             }
-            showTelemetry = GUILayout.Toggle(showTelemetry, "数据", GUI.skin.button, GUILayout.Width(54));
+            showTelemetry = GUILayout.Toggle(showTelemetry, L.T("数据"), GUI.skin.button, GUILayout.Width(54));
             GUILayout.EndHorizontal(); GUILayout.EndArea();
 
             if (cameraMode == 4) { DrawServeContactCanvas(left, width); return; }
@@ -206,58 +206,58 @@ namespace TableTennis
             if (pickingReceivePoint)
             {
                 DrawRect(new Rect(left, ViewTop + 10, Mathf.Min(width, 440), 35), new Color(0.13f, 0.24f, 0.24f));
-                GUI.Label(new Rect(left + 10, ViewTop + 15, width - 20, 26), "点击右侧高亮曲线选择接球点 · Esc 退出", small);
+                GUI.Label(new Rect(left + 10, ViewTop + 15, width - 20, 26), L.T("点击右侧高亮曲线选择接球点 · Esc 退出"), small);
             }
             else
             {
-                string legend = IsStudying && receiveReport != null ? "上一轮结果 · 新试验完成后更新" :
-                    selectedReceive != null ? "绿点：复验落点    橙线：发球    青线：当前接法" : mode == 0 ? "青线：出球轨迹" : "橙线：来球    青线：回球";
-                GUI.Label(new Rect(left, ViewTop + 10, width, 22), legend + (referenceFlight != null ? "    紫线：参照" : ""), small);
+                string legend = IsStudying && receiveReport != null ? L.T("上一轮结果 · 新试验完成后更新") :
+                    selectedReceive != null ? L.T("绿点：复验落点    橙线：发球    青线：当前接法") : mode == 0 ? L.T("青线：出球轨迹") : L.T("橙线：来球    青线：回球");
+                GUI.Label(new Rect(left, ViewTop + 10, width, 22), legend + (referenceFlight != null ? L.T("    紫线：参照") : ""), small);
             }
             if (cameraMode == 1 && mode != 1)
             {
                 int spinKind = BallSpin.Kind(BallSpin.Components(WorldSpinRps, SpinTravel));
-                string label = spinKind < 6 ? SpinNames[spinKind] : "自定义旋转";
-                GUI.Label(new Rect(left, ViewTop + 34, width, 38), "出球：" + label + " · 上下旋请切侧视；左右按发球者朝向对方定义。", small);
-                WorldLabel(new Vector3(-0.82f, 0.78f, -1.5f), "发球者左", 8);
-                WorldLabel(new Vector3(0.82f, 0.78f, -1.5f), "发球者右", 8);
+                string label = spinKind < 6 ? L.T(SpinNames[spinKind]) : L.T("自定义旋转");
+                GUI.Label(new Rect(left, ViewTop + 34, width, 38), L.T("出球：") + label + L.T(" · 上下旋请切侧视；左右按发球者朝向对方定义。"), small);
+                WorldLabel(new Vector3(-0.82f, 0.78f, -1.5f), L.T("发球者左"), 8);
+                WorldLabel(new Vector3(0.82f, 0.78f, -1.5f), L.T("发球者右"), 8);
             }
             if (landingCloud != null) landingCloud.gameObject.SetActive(showCloud && !pickingReceivePoint);
             if (cameraMode != 3 && mode == 2 && serveFlight != null)
             {
                 for (int i = 0; i < Math.Min(2, serveFlight.Events.Count); i++)
-                    if (serveFlight.Events[i].Kind == "球台") WorldLabel(U(serveFlight.Events[i].Before.Position), $"{i + 1} · 发球落台");
-                if (reception != null) WorldLabel(U(incoming.Position), "3 · 接球点", -40);
+                    if (serveFlight.Events[i].Kind == "球台") WorldLabel(U(serveFlight.Events[i].Before.Position), L.F("{0} · 发球落台", i + 1));
+                if (reception != null) WorldLabel(U(incoming.Position), L.T("3 · 接球点"), -40);
             }
             if (cameraMode == 3 && mode != 0 && flight != null)
             {
-                GUI.Label(new Rect(left, ViewTop + 38, width, 25), "黑面触球 · 蓝箭头：拍面朝向 · 黄箭头：挥拍速度" + (showSpinAxis ? " · 紫箭头：角速度轴" : ""), small);
+                GUI.Label(new Rect(left, ViewTop + 38, width, 25), L.T("黑面触球 · 蓝箭头：拍面朝向 · 黄箭头：挥拍速度") + (showSpinAxis ? L.T(" · 紫箭头：角速度轴") : ""), small);
                 double normalSpeed = V3.Dot(RacketVelocity, RacketNormal);
                 double brushSpeed = (RacketVelocity - RacketNormal * normalSpeed).Length;
-                GUI.Label(new Rect(left, ViewTop + 64, width, 25), $"垂直拍面 {normalSpeed:+0.00;-0.00;0.00} m/s  ·  沿拍面 {brushSpeed:0.00} m/s  ·  开合 {facePitch:+0.0;-0.0;0.0}°", small);
+                GUI.Label(new Rect(left, ViewTop + 64, width, 25), L.F("垂直拍面 {0:+0.00;-0.00;0.00} m/s  ·  沿拍面 {1:0.00} m/s  ·  开合 {2:+0.0;-0.0;0.0}°", normalSpeed, brushSpeed, facePitch), small);
                 DrawRect(new Rect(left - 4, ViewArea.yMax - 82, Mathf.Min(width + 8, 480), 45), new Color(0.055f, 0.08f, 0.10f, 0.94f));
-                GUI.Label(new Rect(left, ViewArea.yMax - 82, width, 40), "仅显示触球前后 10 ms 的局部动作，拍柄转角可调。\n完整引拍、收拍及人体可达性尚未建模。", small);
+                GUI.Label(new Rect(left, ViewArea.yMax - 82, width, 40), L.T("仅显示触球前后 10 ms 的局部动作，拍柄转角可调。\n完整引拍、收拍及人体可达性尚未建模。"), small);
             }
             if (mode != 0 && flight != null && RacketGeometry.MayTouchTable(incoming.Position, RacketNormal, RacketVelocity, racketRoll))
-                GUI.Label(new Rect(left, ViewTop + 94, width, 35), "当前动作可能碰台，评估会计作失败；可提高接球点或调整拍型。", small);
+                GUI.Label(new Rect(left, ViewTop + 94, width, 35), L.T("当前动作可能碰台，评估会计作失败；可提高接球点或调整拍型。"), small);
             if (!string.IsNullOrEmpty(error))
             {
                 var rect = new Rect(left, ViewTop + 55, width, 150);
                 DrawRect(rect, new Color(0.23f, 0.16f, 0.12f));
                 bool validArrival = mode == 2 && reception != null;
                 GUI.Label(new Rect(rect.x + 12, rect.y + 10, rect.width - 24, 90),
-                    (validArrival ? "手动接法未形成有效击球\n" : "发球或接球点需要调整\n") + error +
-                    (validArrival ? "\n来球和接球点有效，仍可搜索其他接法。" : ""), small);
+                    (validArrival ? L.T("手动接法未形成有效击球\n") : L.T("发球或接球点需要调整\n")) + error +
+                    (validArrival ? L.T("\n来球和接球点有效，仍可搜索其他接法。") : ""), small);
                 GUI.enabled = !IsStudying;
                 if (validArrival)
                 {
-                    if (GUI.Button(new Rect(rect.x + 12, rect.y + 107, 148, 34), "搜索可用接法")) StartReceiveSearch();
+                    if (GUI.Button(new Rect(rect.x + 12, rect.y + 107, 148, 34), L.T("搜索可用接法"))) StartReceiveSearch();
                 }
                 else if (mode == 2 && CanPickReceivePoint)
                 {
-                    if (GUI.Button(new Rect(rect.x + 12, rect.y + 107, 148, 34), "重新选择接球点")) BeginPointPicking();
+                    if (GUI.Button(new Rect(rect.x + 12, rect.y + 107, 148, 34), L.T("重新选择接球点"))) BeginPointPicking();
                 }
-                else if (mode == 2 && GUI.Button(new Rect(rect.x + 12, rect.y + 107, 148, 34), "恢复下旋示例"))
+                else if (mode == 2 && GUI.Button(new Rect(rect.x + 12, rect.y + 107, 148, 34), L.T("恢复下旋示例")))
                 { ApplyServeStudy(); Recalculate(); }
                 GUI.enabled = true;
             }
@@ -276,34 +276,34 @@ namespace TableTennis
             var landing = flight.Events.Find(e => e.Kind == "球台");
             GUILayout.BeginArea(new Rect(left, UIHeight - FooterHeight + 10, width, FooterHeight - 12));
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button(playing ? "暂停" : "播放", primaryButton, GUILayout.Width(78), GUILayout.Height(34))) TogglePlayback();
-            if (GUILayout.Button(new GUIContent("重播", "从发球起点重新播放；快捷键 R"), GUILayout.Width(58))) { time = StartTime; playing = true; }
+            if (GUILayout.Button(playing ? L.T("暂停") : L.T("播放"), primaryButton, GUILayout.Width(78), GUILayout.Height(34))) TogglePlayback();
+            if (GUILayout.Button(new GUIContent(L.T("重播"), L.T("从发球起点重新播放；快捷键 R")), GUILayout.Width(L.Current == Language.French ? 64 : 58))) { time = StartTime; playing = true; }
             time = GUILayout.HorizontalSlider(time, StartTime, (float)flight.Samples[flight.Samples.Count - 1].Time);
             GUILayout.Label($"{time:0.000} s", value, GUILayout.Width(80));
             if (GUILayout.Button($"{playbackSpeed:0.##}×", GUILayout.Width(64))) playbackSpeed = playbackSpeed == 0.25f ? 1 : playbackSpeed == 1 ? 0.1f : 0.25f;
             GUILayout.EndHorizontal(); GUILayout.Space(6);
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("到触球", GUILayout.Width(74))) { time = 0; playing = false; }
+            if (GUILayout.Button(L.T("到触球"), GUILayout.Width(74))) { time = 0; playing = false; }
             GUI.enabled = landing != null;
-            if (GUILayout.Button("到落台", GUILayout.Width(74))) { time = (float)landing.Before.Time + 0.000001f; playing = false; }
+            if (GUILayout.Button(L.T("到落台"), GUILayout.Width(74))) { time = (float)landing.Before.Time + 0.000001f; playing = false; }
             GUI.enabled = true;
-            string metrics = $"出球 {launch.Velocity.Length:0.00} m/s";
-            if (flight.NetClearance.HasValue) metrics += $"  ·  过网 {flight.NetClearance * 100:0.0} cm";
+            string metrics = L.F("出球 {0:0.00} m/s", launch.Velocity.Length);
+            if (flight.NetClearance.HasValue) metrics += L.F("  ·  过网 {0:0.0} cm", flight.NetClearance * 100);
             if (mode == 2)
             {
                 var action = ManualReceiveAction;
-                metrics = $"开合 {action.Pitch:+0.0;-0.0;0.0}°  ·  迎前 {action.Forward:+0.00;-0.00;0.00} / 上提 {action.Up:+0.00;-0.00;0.00} / 横向 {action.Side:+0.00;-0.00;0.00} m/s";
+                metrics = L.F("开合 {0:+0.0;-0.0;0.0}°  ·  迎前 {1:+0.00;-0.00;0.00} / 上提 {2:+0.00;-0.00;0.00} / 横向 {3:+0.00;-0.00;0.00} m/s", action.Pitch, action.Forward, action.Up, action.Side);
             }
-            GUILayout.Label(new GUIContent(metrics, "前后速度：正值朝左回球，负值向右缓冲。完整球速、旋转与落点可在顶部“数据”中查看。"), small, GUILayout.ExpandWidth(true));
-            if (GUILayout.Button(new GUIContent("轨迹 CSV", "导出完整轨迹、碰撞事件和本次参数。"), GUILayout.Width(92))) Export();
+            GUILayout.Label(new GUIContent(metrics, L.T("前后速度：正值朝左回球，负值向右缓冲。完整球速、旋转与落点可在顶部“数据”中查看。")), small, GUILayout.ExpandWidth(true));
+            if (GUILayout.Button(new GUIContent(L.T("轨迹 CSV"), L.T("导出完整轨迹、碰撞事件和本次参数。")), GUILayout.Width(92))) Export();
             GUILayout.EndHorizontal();
-            string line = "空格：播放 / 暂停  ·  物理参数待实测标定";
-            if (!string.IsNullOrEmpty(notice)) line = notice.Contains("导出") && !notice.Contains("失败") ? "已导出到项目 Artifacts 文件夹" : notice;
+            string line = L.T("空格：播放 / 暂停  ·  物理参数待实测标定");
+            if (!string.IsNullOrEmpty(notice)) line = notice.Contains(L.T("导出")) && !notice.Contains(L.T("失败")) ? L.T("已导出到项目 Artifacts 文件夹") : notice;
             if (referenceFlight != null && string.IsNullOrEmpty(notice))
             {
-                line = $"与参照相比  ·  速度 Δ{launch.Velocity.Length - referenceLaunch.Velocity.Length:+0.00;-0.00;0.00} m/s";
+                line = L.F("与参照相比  ·  速度 Δ{0:+0.00;-0.00;0.00} m/s", launch.Velocity.Length - referenceLaunch.Velocity.Length);
                 var prior = referenceFlight.Events.Find(e => e.Kind == "球台");
-                if (prior != null && landing != null) line += $"  ·  落点 ΔX {(landing.Before.Position.X - prior.Before.Position.X) * 100:+0.0;-0.0;0.0} / ΔZ {(landing.Before.Position.Z - prior.Before.Position.Z) * 100:+0.0;-0.0;0.0} cm";
+                if (prior != null && landing != null) line += L.F("  ·  落点 ΔX {0:+0.0;-0.0;0.0} / ΔZ {1:+0.0;-0.0;0.0} cm", (landing.Before.Position.X - prior.Before.Position.X) * 100, (landing.Before.Position.Z - prior.Before.Position.Z) * 100);
             }
             GUILayout.Label(new GUIContent(line, notice), small);
             GUILayout.EndArea();
@@ -315,23 +315,23 @@ namespace TableTennis
             DrawRect(rect, new Color(0.075f, 0.12f, 0.15f, 0.97f));
             GUILayout.BeginArea(new Rect(rect.x + 12, rect.y + 8, rect.width - 24, rect.height - 16));
             BallState s = StateAt(time);
-            GUILayout.Label(time < 0 ? "发球 / 来球中" : "接球之后", section);
-            GUILayout.Label($"速度 {s.Velocity.Length:0.00} m/s  ·  转速 {s.Spin.Length / BallPhysics.Rps:0.0} rps", small);
+            GUILayout.Label(time < 0 ? L.T("发球 / 来球中") : L.T("接球之后"), section);
+            GUILayout.Label(L.F("速度 {0:0.00} m/s  ·  转速 {1:0.0} rps", s.Velocity.Length, s.Spin.Length / BallPhysics.Rps), small);
             GUILayout.Label($"ωX {s.Spin.X / BallPhysics.Rps:0.0} / Y {s.Spin.Y / BallPhysics.Rps:0.0} / Z {s.Spin.Z / BallPhysics.Rps:0.0}", small);
             var landing = flight.Events.Find(e => e.Kind == "球台");
             if (landing != null)
             {
-                GUILayout.Label($"落点 X {landing.Before.Position.X:+0.000;-0.000;0.000} / Z {landing.Before.Position.Z:+0.000;-0.000;0.000} m", small);
-                GUILayout.Label($"反弹 {landing.After.Velocity.Length:0.00} m/s · {landing.After.Spin.Length / BallPhysics.Rps:0.0} rps", small);
+                GUILayout.Label(L.F("落点 X {0:+0.000;-0.000;0.000} / Z {1:+0.000;-0.000;0.000} m", landing.Before.Position.X, landing.Before.Position.Z), small);
+                GUILayout.Label(L.F("反弹 {0:0.00} m/s · {1:0.0} rps", landing.After.Velocity.Length, landing.After.Spin.Length / BallPhysics.Rps), small);
             }
             else if (flight.FirstTableHeightCrossing.HasValue)
             {
                 V3 p = flight.FirstTableHeightCrossing.Value.Position;
-                GUILayout.Label($"台高交点 X {p.X:0.000} / Z {p.Z:0.000} m", small);
+                GUILayout.Label(L.F("台高交点 X {0:0.000} / Z {1:0.000} m", p.X, p.Z), small);
             }
-            showGuides = GUILayout.Toggle(showGuides, "显示拍面与挥拍方向");
-            showSpinAxis = GUILayout.Toggle(showSpinAxis, "角速度轴箭头（高级，不是转动方向）");
-            if (selectedReceive != null) showCloud = GUILayout.Toggle(showCloud, "显示复验落点云");
+            showGuides = GUILayout.Toggle(showGuides, L.T("显示拍面与挥拍方向"));
+            showSpinAxis = GUILayout.Toggle(showSpinAxis, L.T("角速度轴箭头（高级，不是转动方向）"));
+            if (selectedReceive != null) showCloud = GUILayout.Toggle(showCloud, L.T("显示复验落点云"));
             GUILayout.EndArea();
         }
 
